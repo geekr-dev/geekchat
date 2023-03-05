@@ -41,6 +41,14 @@
         <input id="message" type="text" name="message" autocomplete="off" class="border rounded-md  p-2 flex-1" />
         <a class="bg-gray-800 text-white p-2 rounded-md" href="/reset">重置会话</a>
     </form>
+
+    <footer class="bg-gray-200 py-2 px-4 absolute bottom-0 left-0 w-full">
+        <div class="container mx-auto">
+            <p class="text-sm text-gray-600 text-center">
+                GeekChat演示版由<a href="https://geekr.dev" target="_blank" class="hover:text-blue-500">极客书房</a>友情赞助
+            </p>
+        </div>
+    </footer>
 </body>
 
 </html>
