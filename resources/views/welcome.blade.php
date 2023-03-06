@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>GeekChat</title>
+    <title>GeekChat - 免费 ChatGPT 体验版</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
