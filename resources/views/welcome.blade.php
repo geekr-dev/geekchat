@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>GeekChat - 免费 ChatGPT 体验版</title>
+    <title>GeekChat - ChatGPT 免费演示版</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -42,11 +42,19 @@
         <a class="bg-gray-800 text-white p-2 rounded-md" href="/reset">重置会话</a>
     </form>
 
-    <footer class="bg-gray-200 py-2 px-4 absolute bottom-0 left-0 w-full">
+    <footer class="bg-gray-200 py-2 px-4 absolute left-0 w-full fixed inset-x-0 bottom-0">
         <div class="container mx-auto">
             <p class="text-sm text-gray-600 text-center">
-                GeekChat演示版由<a href="https://geekr.dev" target="_blank" class="hover:text-blue-500">极客书房</a>友情赞助
+
             </p>
+        </div>
+    </footer>
+
+    <footer class="text-center sm:text-left">
+        <div class="p-4 text-center text-neutral-700">
+            GeekChat演示版由
+            <a href="https://geekr.dev" target="_blank" class="text-neutral-800 dark:text-neutral-400">极客书房</a>
+            友情赞助
         </div>
     </footer>
 </body>
