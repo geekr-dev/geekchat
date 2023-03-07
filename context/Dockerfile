@@ -11,6 +11,7 @@ ENV TZ=UTC
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# 替换Ubuntu软件源
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
@@ -32,6 +33,10 @@ RUN apt-get update \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# 设置镜像&安装PHP依赖
+RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+RUN composer install
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.2
 
