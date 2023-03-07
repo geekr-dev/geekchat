@@ -9,12 +9,9 @@ This is a simple clone of ChatGPT made with Laravel using the OpenAI PHP client
 本地启动：
 
 ```bash
-composer install
 cp .env.example .env
-php artisan key:generate
 # 设置 OPENAI_API_KEY
-npm install && npm run dev
-./vendor/bin/sail up -d
+docker-compose up -d
 ```
 
 启动成功后，就可以通过 `http://localhost` 在浏览器访问 GeekChat 了。
