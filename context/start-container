@@ -11,12 +11,6 @@ fi
 chmod -R ugo+rw /.composer
 chmod -R ugo+rw /var/www/html/storage
 
-if [ ! -d /vendor]; then
-    composer install
-else
-    composer update
-fi
-
 if [ $# -gt 0 ]; then
     exec gosu $WWWUSER "$@"
 else
