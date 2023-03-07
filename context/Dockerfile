@@ -8,6 +8,7 @@ WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -35,9 +36,8 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# 设置Composer镜像&安装PHP依赖
+# 设置Composer镜像
 RUN composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
-RUN composer install
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.2
 
