@@ -12,7 +12,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 替换Ubuntu软件源
+# 替换Ubuntu默认软件源
 RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
