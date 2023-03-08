@@ -15,7 +15,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "openai-php/client": "^0.3.4",
-        "openai-php/laravel": "dev-main",
+        "geekr/openai-laravel": "dev-master",
         "spiral/roadrunner": "^2.8.2"
     },
     "require-dev": {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use OpenAI\Laravel\Facades\OpenAI;
+use GeekrOpenAI\Laravel\Facades\OpenAI;
 
 class ChatController extends Controller
 {
@@ -13,6 +13,10 @@ class ChatController extends Controller
      */
     public function chat(Request $request): RedirectResponse
     {
+        $request->validate([
+            'message' => 'required|string'
+        ]);
+
         $messages = $request->session()->get('messages', [
             ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible.']
         ]);
