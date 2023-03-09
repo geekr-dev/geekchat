@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', ChatController::class . '@index')->name('home');
-Route::post('/chat', ChatController::class . '@chat')->name('chat');
+Route::post('/chat', ChatController::class . '@chat')->name('chat')->middleware('throttle:chat');
+Route::post('/audio', ChatController::class . '@audio')->name('audio')->middleware('throttle:audio');
 Route::get('/rest', ChatController::class . '@reset')->name('reset');
 
 // 暂不开放用户认证功能

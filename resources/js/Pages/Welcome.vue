@@ -1,5 +1,7 @@
 <script setup>
+import AudioWidget from '@/Components/AudioWidget.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { reactive } from 'vue';
 
 const props = defineProps({
@@ -22,11 +24,16 @@ const chat = () => {
         onStart: () => {
             data.error = ''
             form.reset()
-            data.toast = 'GeekChat正在思考如何回答，请稍候...'
+            data.toast = 'GeekChat正在思考如何回答您的问题，请稍候...'
         },
         onFinish: response => {
             if (response.status >= 400) {
-                data.error = '请求处理失败，请重试'
+                if (response.status == 429) {
+                    data.error = '请求过于频繁，请稍后再试'
+                } else {
+                    data.error = '请求处理失败，请重试'
+                }
+
             }
             data.toast = ''
             scrollToButtom()
@@ -44,6 +51,32 @@ const reset = () => {
 const scrollToButtom = () => {
     const msgAnchor = document.querySelector('#msg-anchor')
     msgAnchor.scrollIntoView({ behavior: 'smooth' })
+}
+
+const audio = (blob) => {
+    const formData = new FormData();
+    formData.append('audio', blob);
+    data.error = ''
+    data.toast = 'GeekChat正在识别语音并思考如何回答您的问题，请稍候...'
+    axios.post(route('audio'), formData)
+        .then(response => {
+            data.toast = ''
+            location.reload();
+            scrollToButtom()
+        }).catch(error => {
+            data.toast = ''
+            if (error.includes('429')) {
+                data.error = '请求过于频繁，请稍后再试'
+            } else {
+                data.error = '处理语音失败，可能没录音成功（按下话筒图标->开始讲话->讲完按下终止图标，操作不要太快），再来一次试试吧'
+            }
+            scrollToButtom()
+        })
+}
+
+const audioFailed = (error) => {
+    data.error = error
+    data.toast = ''
 }
 </script>
 
@@ -87,9 +120,12 @@ const scrollToButtom = () => {
     </div>
 
     <form class="p-4 flex space-x-4 justify-center items-center" @submit.prevent="chat">
-        <input id="message" placeholder="输入你的问题..." type="text" name="prompt" autocomplete="off" v-model="form.prompt"
-            class="border rounded-md  p-2 flex-1" required />
-        <button class=""
+        <div class="relative w-full">
+            <input id="message" placeholder="输入你的问题..." type="text" name="prompt" autocomplete="off" v-model="form.prompt"
+                class="w-full first-letter:border rounded-md p-2 flex-1" required />
+            <audio-widget @audio-upload="audio" @audio-failed="audioFailed" />
+        </div>
+        <button
             :class="{ 'flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': form.processing }"
             :disabled="form.processing" type="submit">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -111,9 +147,9 @@ const scrollToButtom = () => {
 
     <footer class="text-center sm:text-left">
         <div class="p-4 text-center text-neutral-700">
-            GeekChat体验版由
+            GeekChat 由
             <a href="https://geekr.dev" target="_blank" class="text-neutral-800 dark:text-neutral-400">极客书房</a>
-            友情赞助
+            友情赞助，你可以通过文字或语音进行聊天和咨询
         </div>
     </footer>
 </template>
