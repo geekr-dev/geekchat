@@ -147,9 +147,9 @@ const audioFailed = (error) => {
 
     <footer class="text-center sm:text-left">
         <div class="p-4 text-center text-neutral-700">
-            GeekChat 是一个免费体验版 ChatGPT，由
+            GeekChat 是一个小而美的免费体验版 ChatGPT，由
             <a href="https://geekr.dev" target="_blank" class="text-neutral-800 dark:text-neutral-400">极客书房</a>
-            开发，支持文字/语音聊天咨询
+            开发，支持文字语音聊天咨询。
         </div>
     </footer>
 </template>
