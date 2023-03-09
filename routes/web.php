@@ -3,14 +3,25 @@
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $messages = collect(session('messages', []))->reject(fn ($message) => $message['role'] === 'system');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
 
-    return view('welcome', [
-        'messages' => $messages
-    ]);
-});
+Route::get('/', ChatController::class . '@index')->name('home');
+Route::post('/chat', ChatController::class . '@chat')->name('chat')->middleware('throttle:chat');
+Route::post('/audio', ChatController::class . '@audio')->name('audio')->middleware('throttle:audio');
+Route::get('/rest', ChatController::class . '@reset')->name('reset');
 
-Route::post('/chat', ChatController::class . '@chat');
+// 暂不开放用户认证功能
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/reset', ChatController::class . '@reset');
+// require __DIR__ . '/auth.php';
