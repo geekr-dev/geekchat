@@ -40,6 +40,7 @@ class ChatController extends Controller
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages
         ]);
+        // @todo 处理异常
 
         $respText = '';
         if (empty($response->choices[0]->message->content)) {
@@ -80,11 +81,19 @@ class ChatController extends Controller
 
         // $path = 'audios/2023/03/09/test.wav';（测试用）
         // 调用 speech to text API 将语音转化为文字
-        $response = OpenAI::audio()->transcribe([
-            'model' => 'whisper-1',
-            'file' => fopen(Storage::disk('local')->path($path), 'r'),
-            'response_format' => 'verbose_json',
-        ]);
+        try {
+            $response = OpenAI::audio()->transcribe([
+                'model' => 'whisper-1',
+                'file' => fopen(Storage::disk('local')->path($path), 'r'),
+                'response_format' => 'verbose_json',
+            ]);
+        } catch (Exception $exception) {
+            $messages[] = ['role' => 'assistant', 'content' => '服务端异常，请联系管理员'];
+            $request->session()->put('messages', $messages);
+            return Redirect::to('/');
+        } finally {
+            Storage::disk('local')->delete($path);  // 处理完毕删除音频文件节省磁盘空间
+        }
 
         if (empty($response->text)) {
             $messages[] = ['role' => 'system', 'content' => '对不起，我没有听清你说的话，请再试一次'];
