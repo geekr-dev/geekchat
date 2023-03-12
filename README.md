@@ -4,8 +4,7 @@ This is a simple clone of ChatGPT made with Laravel using the OpenAI PHP client
 
 这是使用 Laravel 10 + Inertia + Vue3 + Tailwind + OpenAI API 实现的 ChatGPT 网页版，在文字基础上增加了对语音的支持：
 
-<img width="531" alt="image" src="https://user-images.githubusercontent.com/114386672/224091570-b212e9e8-80d9-42f2-83cd-0092fd2f47eb.png">
-
+<img width="598" alt="微信图片_20230313021204" src="https://user-images.githubusercontent.com/114386672/224564042-339b4ba4-17b3-4736-9aed-db0ae35e7ecb.png">
 
 本地启动：
 
