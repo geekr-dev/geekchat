@@ -38,7 +38,7 @@ const audioFailed = (error) => {
 </script>
 
 <template>
-    <Head title="GeekChat - ChatGPT免费体验版"></Head>
+    <Head title="GeekChat - 支持语音的免费体验版ChatGPT"></Head>
     <div>
         <div class="max-w-2xl mx-auto">
             <div class="py-8">
