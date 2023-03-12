@@ -4,8 +4,6 @@
 /public/storage
 /storage/*.key
 /vendor
-/context
-docker-compose.yml
 /resources/views/analysis.blade.php
 .env
 .env.backup
@@ -21,5 +19,3 @@ yarn-error.log
 /.vscode
 rr
 .rr.yaml
-./context
-composer.lock
