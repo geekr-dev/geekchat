@@ -1,6 +1,6 @@
 # GeekChat - A ChatGPT clone
 
-This is a simple clone of ChatGPT made with Laravel using the OpenAI PHP client
+This is a simple clone of ChatGPT made with Laravel using the OpenAI API as well as Vue3 + Tailwind CSS.
 
 这是使用 Laravel 10 + Inertia + Vue3 + Tailwind + OpenAI API 实现的 ChatGPT 网页版，在文字基础上增加了对语音的支持（基于 Whisper）：
 
