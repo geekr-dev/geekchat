@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\OpenAI;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use GeekrOpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
@@ -34,13 +34,13 @@ class ChatController extends Controller
         ]);
 
         $messages = $request->session()->get('messages', [
-            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible.']
+            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using Simplified Chinese as the first language.']
         ]);
 
         $messages[] = ['role' => 'user', 'content' => $request->input('prompt')];
 
         try {
-            $response = OpenAI::chat()->create([
+            $response = OpenAI::chat([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => $messages
             ]);
@@ -48,11 +48,12 @@ class ChatController extends Controller
             return $this->toJsonResponse($request, SYSTEM_ERROR, $messages);
         }
 
+        $result = json_decode($response);
         $respText = '';
-        if (empty($response->choices[0]->message->content)) {
+        if (empty($result->choices[0]->message->content)) {
             $respText = '对不起，我没有理解你的意思，请重试';
         } else {
-            $respText = $response->choices[0]->message->content;
+            $respText = $result->choices[0]->message->content;
         }
         return  $this->toJsonResponse($request, $respText, $messages);
     }
@@ -83,9 +84,9 @@ class ChatController extends Controller
         // $path = 'audios/2023/03/09/test.wav';（测试用）
         // 调用 speech to text API 将语音转化为文字
         try {
-            $response = OpenAI::audio()->transcribe([
+            $response = OpenAI::transcribe([
                 'model' => 'whisper-1',
-                'file' => fopen(Storage::disk('local')->path($path), 'r'),
+                'file' => curl_file_create(Storage::disk('local')->path($path)),
                 'response_format' => 'verbose_json',
             ]);
         } catch (Exception $exception) {
@@ -94,15 +95,16 @@ class ChatController extends Controller
             Storage::disk('local')->delete($path);  // 处理完毕删除音频文件
         }
 
-        if (empty($response->text)) {
+        $result = json_decode($response);
+        if (empty($result->text)) {
             return $this->toJsonResponse($request, '对不起，我没有听清你说的话，请再试一次', $messages);
         }
 
         // 接下来的流程和 ChatGPT 一样
-        $reqMessage = ['role' => 'user', 'content' => $response->text];
+        $reqMessage = ['role' => 'user', 'content' => $result->text];
         $messages[] = $reqMessage;
         try {
-            $response = OpenAI::chat()->create([
+            $response = OpenAI::chat([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => $messages
             ]);
@@ -110,11 +112,12 @@ class ChatController extends Controller
             return $this->toJsonResponse($request, SYSTEM_ERROR, $messages, true);
         }
 
+        $result = json_decode($response);
         $respText = '';
-        if (empty($response->choices[0]->message->content)) {
+        if (empty($result->choices[0]->message->content)) {
             $respText = '对不起，我没有听明白你的意思，请再说一遍';
         } else {
-            $respText = $response->choices[0]->message->content;
+            $respText = $result->choices[0]->message->content;
         }
         return $this->toJsonResponse($request, $respText, $messages, true);
     }
@@ -132,9 +135,6 @@ class ChatController extends Controller
     private function toJsonResponse($request, $message, $messages, $isAudio = false): JsonResponse
     {
         $respMessage = ['role' => 'assistant', 'content' => $message];
-        if (empty($messages)) {
-            $messages = $request->session()->get('messages', []);
-        }
         $messages[] = $respMessage;
         $request->session()->put('messages', $messages);
         if (!$isAudio) {

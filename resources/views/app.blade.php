@@ -20,6 +20,13 @@
 
 <body class="font-sans antialiased">
     @inertia
+    <footer class="text-center sm:text-left">
+        <div class="p-4 text-center text-neutral-700">
+            GeekChat 由
+            <a href="https://geekr.dev" target="_blank" class="text-neutral-800 dark:text-neutral-400">极客书房</a>
+            开发维护，合作咨询、定制开发、问题反馈请<a href="https://image.gstatics.cn/wechat.webp" target="_blank" class="text-blue-300 dark:text-blue-500">点这里</a>。
+        </div>
+    </footer>
 </body>
 
 </html>

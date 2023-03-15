@@ -1,6 +1,9 @@
 <?php
 
+use App\Facades\OpenAI as FacadesOpenAI;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Facade;
+use Orhanerday\OpenAi\OpenAi;
 
 return [
 
@@ -189,11 +192,12 @@ return [
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
+        \App\Providers\AiServiceProvider::class,
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
+        \App\Providers\RouteServiceProvider::class,
 
     ],
 
