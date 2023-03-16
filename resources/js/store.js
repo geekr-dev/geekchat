@@ -48,7 +48,7 @@ const store = createStore({
                 return response.json();
             }).then(data => {
                 commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
-                const eventSource = new EventSource(`/stream/${data.chat_id}`);
+                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
                 eventSource.onmessage = function (e) {
                     if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
                         state.messages[state.messages.length - 1].content = '';
@@ -63,7 +63,6 @@ const store = createStore({
                     }
                 };
                 eventSource.onerror = function (e) {
-                    console.log(e);
                     eventSource.close();
                     commit('deleteMessage');
                     commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
@@ -87,8 +86,7 @@ const store = createStore({
             }).then(data => {
                 commit('addMessage', data.message); // 将语音识别结果作为用户文本信息
                 commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
-                const eventSource = new EventSource(`/stream/${data.chat_id}`);
-                let buffer = '';
+                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
                 eventSource.onmessage = function (e) {
                     if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
                         state.messages[state.messages.length - 1].content = '';
@@ -96,18 +94,9 @@ const store = createStore({
                     if (e.data == "[DONE]") {
                         eventSource.close();
                     } else {
-                        // e.data 是否以 \n\n 结尾
-                        if (e.data.endsWith('\n\n')) {
-                            if (!e.data.startsWith('data: ')) {
-                                e.data = buffer + e.data;
-                                buffer = '';
-                            }
-                            let word = JSON.parse(e.data).choices[0].delta.content
-                            if (word !== undefined) {
-                                state.messages[state.messages.length - 1].content += JSON.parse(e.data).choices[0].delta.content
-                            }
-                        } else {
-                            buffer += e.data;
+                        let word = JSON.parse(e.data).choices[0].delta.content
+                        if (word !== undefined) {
+                            state.messages[state.messages.length - 1].content += JSON.parse(e.data).choices[0].delta.content
                         }
                     }
                 };
@@ -115,10 +104,9 @@ const store = createStore({
                     eventSource.close();
                     commit('deleteMessage');
                     commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
-                    throw new Error(e);
                 };
             }).catch(error => {
-                if (state.messages[messages.length - 1].content === '正在识别语音，请稍候...') {
+                if (state.messages[state.messages.length - 1].content === '正在识别语音，请稍候...') {
                     commit('deleteMessage');
                     commit('addMessage', { 'role': 'assistant', 'content': '网络请求失败，请重试' })
                 }

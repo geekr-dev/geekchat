@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
-use PHPUnit\Event\Runtime\PHP;
 
 class ChatController extends Controller
 {
@@ -48,11 +47,11 @@ class ChatController extends Controller
     /**
      * Handle the stream response.
      */
-    public function stream(Request $request, string $chatId)
+    public function stream(Request $request)
     {
         // 校验请求是否合法
-        if ($request->session()->get('chat_id') != $chatId) {
-            return abort(400);
+        if ($request->session()->get('chat_id') != $request->input('chat_id')) {
+            abort(400);
         }
 
         $messages = $request->session()->get('messages');
@@ -65,8 +64,10 @@ class ChatController extends Controller
 
         // 实时将流式响应数据发送到客户端
         $respData = '';
+        header('Access-Control-Allow-Origin: *');
         header('Content-type: text/event-stream');
         header('Cache-Control: no-cache');
+        header('X-Accel-Buffering: no');
         OpenAI::chat($params, function ($ch, $data) use (&$respData) {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode >= 400) {
