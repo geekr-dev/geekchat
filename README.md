@@ -28,8 +28,6 @@ docker exec -it geekchat_laravel.test_1 bash
 composer install
 npm install
 npm run build
-./vendor/bin/rr get-binary
-chmod +x ./rr
 exit
 docker-compose build --no-cache
 docker-compose up -d
