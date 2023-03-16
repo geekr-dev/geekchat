@@ -1,5 +1,7 @@
 # GeekChat - Free ChatGPT With Support For Text, Voice And Stream
 
+[中文文档](https://github.com/geekr-dev/geekchat/blob/main/README.zh.md)
+
 ### Introduction
 
 This is a clone of ChatGPT with support for text, voice, stream and beautiful UI, made with Laravel 10 using the ChatGPT and Audio (Whisper model) API, as well as Inertia + Vue3 + Tailwind CSS:
