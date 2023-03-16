@@ -5,7 +5,8 @@ import ChatAPI from './api/chat';
 const store = createStore({
     state() {
         return {
-            messages: []
+            messages: [],
+            isTyping: false,
         }
     },
     mutations: {
@@ -20,7 +21,10 @@ const store = createStore({
         },
         clearMessages(state) {
             state.messages = []
-        }
+        },
+        toggleTyping(state) {
+            state.isTyping = !state.isTyping
+        },
     },
     actions: {
         // 初始化消息
@@ -28,40 +32,97 @@ const store = createStore({
             ChatAPI.getMessages().then(response => {
                 commit('initMessages', response.data);
             }).catch(error => {
-                console.log(error);
                 commit('initMessages', []);
             });
         },
-        chatMessage({ commit }, message) {
+        chatMessage({ state, commit }, message) {
             commit('addMessage', { 'role': 'user', 'content': message })
-            commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
             ChatAPI.chatMessage(message).then(response => {
-                commit('deleteMessage')
-                commit('addMessage', response.data);
-            }).catch(error => {
-                commit('deleteMessage')
-                if (error.response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
-                } else {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请重试' });
+                if (response.status === 429) {
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
+                } else if (response.status >= 400) {
+                    commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
+                    throw new Error('服务端异常，请稍后再试');
                 }
+                return response.json();
+            }).then(data => {
+                commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
+                const eventSource = new EventSource(`/stream/${data.chat_id}`);
+                eventSource.onmessage = function (e) {
+                    if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
+                        state.messages[state.messages.length - 1].content = '';
+                    }
+                    if (e.data == "[DONE]") {
+                        eventSource.close();
+                    } else {
+                        let word = JSON.parse(e.data).choices[0].delta.content
+                        if (word !== undefined) {
+                            state.messages[state.messages.length - 1].content += JSON.parse(e.data).choices[0].delta.content
+                        }
+                    }
+                };
+                eventSource.onerror = function (e) {
+                    console.log(e);
+                    eventSource.close();
+                    commit('deleteMessage');
+                    commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
+                };
+            }).catch(error => {
+                console.log(error);
             });
         },
-        audioMessage({ commit }, blob) {
-            commit('addMessage', { 'role': 'assistant', 'content': '正在识别语音并思考如何回答您的问题，请稍候...' })
+        audioMessage({ state, commit }, blob) {
+            commit('addMessage', { 'role': 'user', 'content': '正在识别语音，请稍候...' })
             ChatAPI.audioMessage(blob).then(response => {
                 commit('deleteMessage');
-                console.log(response.data);
-                response.data.forEach((_data, index) => {
-                    commit('addMessage', { 'role': _data.role, 'content': _data.content });
-                });
-            }).catch(error => {
-                commit('deleteMessage')
-                if (error.response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
-                } else {
-                    commit('addMessage', { 'role': 'assistant', 'content': '处理语音失败，可能没录音成功（按下话筒图标->开始讲话->讲完按下终止图标，操作不要太快），再来一次试试吧' });
+                if (response.status === 429) {
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
+                } else if (response.status >= 400) {
+                    commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
+                    throw new Error('服务端异常，请稍后再试');
                 }
+                return response.json();
+            }).then(data => {
+                commit('addMessage', data.message); // 将语音识别结果作为用户文本信息
+                commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
+                const eventSource = new EventSource(`/stream/${data.chat_id}`);
+                let buffer = '';
+                eventSource.onmessage = function (e) {
+                    if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
+                        state.messages[state.messages.length - 1].content = '';
+                    }
+                    if (e.data == "[DONE]") {
+                        eventSource.close();
+                    } else {
+                        // e.data 是否以 \n\n 结尾
+                        if (e.data.endsWith('\n\n')) {
+                            if (!e.data.startsWith('data: ')) {
+                                e.data = buffer + e.data;
+                                buffer = '';
+                            }
+                            let word = JSON.parse(e.data).choices[0].delta.content
+                            if (word !== undefined) {
+                                state.messages[state.messages.length - 1].content += JSON.parse(e.data).choices[0].delta.content
+                            }
+                        } else {
+                            buffer += e.data;
+                        }
+                    }
+                };
+                eventSource.onerror = function (e) {
+                    eventSource.close();
+                    commit('deleteMessage');
+                    commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
+                    throw new Error(e);
+                };
+            }).catch(error => {
+                if (state.messages[messages.length - 1].content === '正在识别语音，请稍候...') {
+                    commit('deleteMessage');
+                    commit('addMessage', { 'role': 'assistant', 'content': '网络请求失败，请重试' })
+                }
+                console.log(error);
             });
         },
         clearMessages({ commit }) {
@@ -77,6 +138,9 @@ const store = createStore({
         allMessages(state) {
             return state.messages;
         },
+        isTyping(state) {
+            return state.isTyping;
+        }
     },
 })
 

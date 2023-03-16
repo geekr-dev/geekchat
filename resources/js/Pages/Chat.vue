@@ -9,7 +9,9 @@ const store = useStore()
 onMounted(() => {
     store.dispatch('initMessages')
 })
+
 const messages = computed(() => store.state.messages.filter(message => message != undefined))
+const isTyping = computed(() => store.state.isTyping)
 
 const form = useForm({
     prompt: null,
@@ -87,7 +89,7 @@ const audioFailed = (error) => {
                                     </svg></button></div>
                         </div>
                         <div class="w-full">
-                            <markdown :source="message.content" class="prose prose-sm" />
+                            <markdown :source="message.content" class="prose prose-sm " />
                         </div>
                     </div>
                 </div>

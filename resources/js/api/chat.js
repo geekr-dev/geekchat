@@ -11,14 +11,14 @@ export default {
     chatMessage: (message) => {
         const formData = new FormData();
         formData.append('prompt', message);
-        return axios.post(CHAT_CONFIG.BASE_URL + '/chat', formData, { responseType: 'json' })
+        return fetch(CHAT_CONFIG.BASE_URL + '/chat', { method: 'POST', body: formData })
     },
 
     // 发送语音消息
     audioMessage: (blob) => {
         const formData = new FormData();
         formData.append('audio', blob);
-        return axios.post(CHAT_CONFIG.BASE_URL + '/audio', formData, { responseType: 'json' })
+        return fetch(CHAT_CONFIG.BASE_URL + '/audio', { method: 'POST', body: formData })
     },
 
     // 清空所有消息

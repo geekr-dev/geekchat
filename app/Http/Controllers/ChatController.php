@@ -7,12 +7,16 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
+use PHPUnit\Event\Runtime\PHP;
 
 class ChatController extends Controller
 {
+    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
+
     public function index()
     {
         return Inertia::render('Chat');
@@ -32,30 +36,68 @@ class ChatController extends Controller
         $request->validate([
             'prompt' => 'required|string'
         ]);
+        $messages = $request->session()->get('messages', [$this->preset]);
+        $userMessage = ['role' => 'user', 'content' => $request->input('prompt')];
+        $messages[] = $userMessage;
+        $request->session()->put('messages', $messages); // 基于session存储当前会话信息
+        $chatId = Str::uuid(); // 生成一个唯一聊天ID作为下次请求的凭证
+        $request->session()->put('chat_id', $chatId);
+        return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
+    }
 
-        $messages = $request->session()->get('messages', [
-            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using Simplified Chinese as the first language.']
-        ]);
-
-        $messages[] = ['role' => 'user', 'content' => $request->input('prompt')];
-
-        try {
-            $response = OpenAI::chat([
-                'model' => 'gpt-3.5-turbo',
-                'messages' => $messages
-            ]);
-        } catch (Exception $exception) {
-            return $this->toJsonResponse($request, SYSTEM_ERROR, $messages);
+    /**
+     * Handle the stream response.
+     */
+    public function stream(Request $request, string $chatId)
+    {
+        // 校验请求是否合法
+        if ($request->session()->get('chat_id') != $chatId) {
+            return abort(400);
         }
 
-        $result = json_decode($response);
-        $respText = '';
-        if (empty($result->choices[0]->message->content)) {
-            $respText = '对不起，我没有理解你的意思，请重试';
-        } else {
-            $respText = $result->choices[0]->message->content;
+        $messages = $request->session()->get('messages');
+
+        $params = [
+            'model' => 'gpt-3.5-turbo',
+            'messages' => $messages,
+            'stream' => true,
+        ];
+
+        // 实时将流式响应数据发送到客户端
+        $respData = '';
+        header('Content-type: text/event-stream');
+        header('Cache-Control: no-cache');
+        OpenAI::chat($params, function ($ch, $data) use (&$respData) {
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode >= 400) {
+                echo "data: [ERROR] $httpCode";
+            } else {
+                $respData .= $data;
+                echo $data;;
+                ob_flush();
+                flush();
+                return strlen($data);
+            }
+        });
+
+        // 将响应数据存储到当前会话中以便刷新页面后可以看到聊天记录
+        if (!empty($respData)) {
+            $lines = explode("\n\n", $respData);
+            $respText = '';
+            foreach ($lines as $line) {
+                $data = substr($line, 5); // 每行数据结构是 data: {...}
+                if ($data === '[DONE]') {
+                    break;
+                } else {
+                    $segment = json_decode($data);
+                    if (isset($segment->choices[0]->delta->content)) {
+                        $respText .= $segment->choices[0]->delta->content;
+                    }
+                }
+            }
+            $messages[] = ['role' => 'assistant', 'content' => $respText];
+            $request->session()->put('messages', $messages);
         }
-        return  $this->toJsonResponse($request, $respText, $messages);
     }
 
     /**
@@ -101,25 +143,12 @@ class ChatController extends Controller
         }
 
         // 接下来的流程和 ChatGPT 一样
-        $reqMessage = ['role' => 'user', 'content' => $result->text];
-        $messages[] = $reqMessage;
-        try {
-            $response = OpenAI::chat([
-                'model' => 'gpt-3.5-turbo',
-                'messages' => $messages
-            ]);
-        } catch (Exception $exception) {
-            return $this->toJsonResponse($request, SYSTEM_ERROR, $messages, true);
-        }
-
-        $result = json_decode($response);
-        $respText = '';
-        if (empty($result->choices[0]->message->content)) {
-            $respText = '对不起，我没有听明白你的意思，请再说一遍';
-        } else {
-            $respText = $result->choices[0]->message->content;
-        }
-        return $this->toJsonResponse($request, $respText, $messages, true);
+        $userMessage = ['role' => 'user', 'content' => $result->text];
+        $messages[] = $userMessage;
+        $request->session()->put('messages', $messages);
+        $chatId = Str::uuid();
+        $request->session()->put('chat_id', $chatId);
+        return response()->json(['chat_id' => $chatId, 'message' => $userMessage]); // 将语音识别结果先返回给客户端
     }
 
     /**
@@ -130,18 +159,5 @@ class ChatController extends Controller
         $request->session()->forget('messages');
 
         return response()->json(['status' => 'ok']);
-    }
-
-    private function toJsonResponse($request, $message, $messages, $isAudio = false): JsonResponse
-    {
-        $respMessage = ['role' => 'assistant', 'content' => $message];
-        $messages[] = $respMessage;
-        $request->session()->put('messages', $messages);
-        if (!$isAudio) {
-            return response()->json($respMessage);
-        }
-        // 语音模式下，返回最后两条消息（第一条是语音解析出来的文本，第二条是机器人的回复）
-        $chatMessage = array_slice($messages, -2);
-        return response()->json($chatMessage);
     }
 }
