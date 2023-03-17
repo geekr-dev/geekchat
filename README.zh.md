@@ -39,3 +39,69 @@ docker-compose up -d
 
 开发流程详细文档在这里：<https://geekr.dev/posts/chatgpt-website-by-laravel-10>。
 
+### Stream 实现
+
+我使用 EventSource 和 curl 实现了流式响应，你可以使用这个管道组合来接收 OpenAI API 的流式响应：
+
+Frontend:
+
+```js
+ChatAPI.chatMessage(message).then(response => {
+    ...
+    return response.json();
+}).then(data => {
+    ...
+    const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
+    eventSource.onmessage = function (e) {
+        ...
+        if (e.data == "[DONE]") {
+            eventSource.close();
+        } else {
+            let word = JSON.parse(e.data).choices[0].delta.content
+            if (word !== undefined) {
+                state.messages[state.messages.length - 1].content += JSON.parse(e.data).choices[0].delta.content
+            }
+        }
+    };
+    eventSource.onerror = function (e) {
+        eventSource.close();
+        ...
+    };
+}).catch(error => {
+    ...
+});
+```
+
+Backend:
+
+```php
+use App\Facades\OpenAI;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+$params = [
+    'model' => 'gpt-3.5-turbo',
+    'messages' => $messages,
+    'stream' => true,
+];
+
+$response = new StreamedResponse(function () use ($request, $params) {
+    $respData = '';
+    OpenAI::chat($params, function ($ch, $data) use (&$respData) {
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($httpCode >= 400) {
+            echo "data: [ERROR] $httpCode";
+        } else {
+            echo $data;
+        }
+        ob_flush();
+        flush();
+        return strlen($data);
+    });
+    ...
+});
+$response->headers->set('Content-Type', 'text/event-stream');
+$response->headers->set('Cache-Control', 'no-cache');
+$response->headers->set('X-Accel-Buffering', 'no');
+return $response;
+```
+

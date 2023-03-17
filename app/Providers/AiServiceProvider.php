@@ -8,8 +8,6 @@ use Illuminate\Support\ServiceProvider;
 use App\Exceptions\OpenAI\ApiKeyIsMissing;
 use Orhanerday\OpenAi\OpenAi;
 
-use function GuzzleHttp\Promise\settle;
-
 /**
  * @internal
  */

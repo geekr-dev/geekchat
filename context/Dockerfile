@@ -3,6 +3,7 @@ FROM ubuntu:22.04
 LABEL maintainer="Taylor Otwell"
 
 ARG WWWGROUP
+ARG NODE_VERSION=18
 
 WORKDIR /var/www/html
 
