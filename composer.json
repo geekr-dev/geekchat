@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.8",
         "openai-php/client": "^0.3.4",
         "orhanerday/open-ai": "^4.7",
+        "spatie/laravel-responsecache": "^7.4",
         "spiral/roadrunner": "^2.8.2",
         "tightenco/ziggy": "^1.0"
     },

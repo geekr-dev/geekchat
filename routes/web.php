@@ -15,7 +15,7 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', ChatController::class . '@index')->name('home');
+Route::get('/', ChatController::class . '@index')->name('home')->middleware('cache.response');
 Route::get('/messages', ChatController::class . '@messages')->name('messages');
 Route::post('/chat', ChatController::class . '@chat')->name('chat')->middleware('throttle:chat');
 Route::get('/stream', ChatController::class . '@stream')->name('stream');
