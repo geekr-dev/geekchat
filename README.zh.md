@@ -78,6 +78,8 @@ Backend:
 use App\Facades\OpenAI;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+...
+
 $params = [
     'model' => 'gpt-3.5-turbo',
     'messages' => $messages,
@@ -105,3 +107,4 @@ $response->headers->set('X-Accel-Buffering', 'no');
 return $response;
 ```
 
+> 注意事项：由于用到了 header、ob_flush、flush 这些函数，所以不支持基于 Swoole 、RoadRunner 之类常驻内存机制驱动的 PHP HTTP 服务器，在部署到生产环境的时候需要注意这一点。 

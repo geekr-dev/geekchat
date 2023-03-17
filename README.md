@@ -37,7 +37,7 @@ docker-compose up -d
 
 After that, you can view GeekChat by `http://localhost` in your local browser.
 
-detail：<https://geekr.dev/posts/chatgpt-website-by-laravel-10>
+detail tutorial：<https://geekr.dev/posts/chatgpt-website-by-laravel-10>
 
 ### Stream Support
 
@@ -107,3 +107,4 @@ $response->headers->set('X-Accel-Buffering', 'no');
 return $response;
 ```
 
+> Warning: 
