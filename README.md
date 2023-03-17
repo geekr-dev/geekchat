@@ -107,4 +107,4 @@ $response->headers->set('X-Accel-Buffering', 'no');
 return $response;
 ```
 
-> Warning: 
+> Warning: Due to the use of functions such as `header`, `ob_flush`, and `flush`, this does not support PHP HTTP servers driven by persistent memory mechanisms like Swoole or RoadRunner. It's important to keep this in mind when deploying to a production environment.
