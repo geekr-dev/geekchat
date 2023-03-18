@@ -104,7 +104,7 @@ const audioFailed = (error) => {
                             @submit.prevent="chat">
                             <textarea required id="chat-input-textbox" placeholder="输入你的问题..." name="prompt"
                                 autocomplete="off" v-model="form.prompt" style="height: 40px !important;"
-                                class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6"></textarea>
+                                class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-y"></textarea>
                             <div class="flex space-x-2">
                                 <button
                                     :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true }"
