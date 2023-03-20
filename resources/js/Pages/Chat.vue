@@ -44,11 +44,11 @@ const image = () => {
 </script>
 
 <template>
-    <Head title="GeekChat - 支持语音的免费体验版ChatGPT"></Head>
+    <Head title="GeekChat - 支持文字、语音、绘图的免费体验版ChatGPT"></Head>
     <div>
         <div class="max-w-2xl mx-auto">
             <div class="py-8">
-                <div class="p-6 sm:p-10 flex items-center justify-center">
+                <div class="p-3 sm:p-5 flex items-center justify-center">
                     <div>
                         <div class="flex items-center justify-center space-x-2"><img
                                 src="https://image.gstatics.cn/icon/geekchat.png" alt="GeekChat"
@@ -57,7 +57,38 @@ const image = () => {
                             </div><span
                                 class="bg-gradient-to-r from-purple-400 to-pink-500 px-3 py-1 text-xs font-semibold text-white text-center rounded-full inline-block ">Beta</span>
                         </div>
-                        <div class="text-center my-4 font-light text-base sm:text-xl my-4 sm:my-10">支持语音的免费体验版ChatGPT
+                        <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、绘图的免费体验版ChatGPT
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center">
+                    <div class="my-4 grid sm:grid-cols-1 gap-y-2 gap-x-6">
+                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
+                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
+                                </path>
+                            </svg>
+                            <div class="text-sm">文字消息：输入框输入问题，点击纸飞机按钮</div>
+                        </div>
+                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
+                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
+                                </path>
+                            </svg>
+                            <div class="text-sm">语音消息：点击话筒按钮讲话，讲完点击停止按钮</div>
+                        </div>
+                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
+                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
+                                </path>
+                            </svg>
+                            <div class="text-sm">绘图消息：输入框输入描述，点击图片按钮</div>
                         </div>
                     </div>
                 </div>
