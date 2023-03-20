@@ -152,6 +152,32 @@ class ChatController extends Controller
         return response()->json(['chat_id' => $chatId, 'message' => $userMessage]); // 将语音识别结果先返回给客户端
     }
 
+    public function image(Request $request): JsonResponse
+    {
+        $request->validate([
+            'prompt' => 'required|string'
+        ]);
+        $messages = $request->session()->get('messages', [$this->preset]);
+        $prompt = $request->input('prompt');
+        $userMsg = ['role' => 'user', 'content' => $prompt];
+        $messages[] = $userMsg;
+        $response = OpenAI::image([
+            "prompt" => $prompt,
+            "n" => 1,
+            "size" => "256x256",
+            "response_format" => "url",
+        ]);
+        $result = json_decode($response);
+        $image = '';
+        if (isset($result->data[0]->url)) {
+            $image = '![](' . $result->data[0]->url . ')';
+        }
+        $assistantMsg = ['role' => 'assistant', 'content' => $image];
+        $messages[] = $assistantMsg;
+        $request->session()->put('messages', $messages);
+        return response()->json($assistantMsg);
+    }
+
     /**
      * Reset the session.
      */

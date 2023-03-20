@@ -21,6 +21,13 @@ export default {
         return fetch(CHAT_CONFIG.BASE_URL + '/audio', { method: 'POST', body: formData })
     },
 
+    // 发送画图消息
+    imageMessage: (message) => {
+        const formData = new FormData();
+        formData.append('prompt', message);
+        return axios.post(CHAT_CONFIG.BASE_URL + '/image', formData, { responseType: 'json' })
+    },
+
     // 清空所有消息
     clearMessages: () => {
         return axios.get(CHAT_CONFIG.BASE_URL + '/reset')

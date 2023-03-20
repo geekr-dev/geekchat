@@ -37,6 +37,10 @@ const audioFailed = (error) => {
     })
 }
 
+const image = () => {
+    store.dispatch('imageMessage', form.prompt)
+}
+
 </script>
 
 <template>
@@ -116,6 +120,16 @@ const audioFailed = (error) => {
                                     </svg>
                                 </button>
                                 <audio-widget @audio-upload="audio" @audio-failed="audioFailed" />
+                                <button
+                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true }"
+                                    @click="image" title="绘制图片" type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                        width="24" height="24" viewBox="0 0 24 24">
+                                        <path fill="#FFFFFF"
+                                            d="M4 2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4l-4 4l-4-4H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m15 13V7l-4 4l-2-2l-6 6h12M7 5a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2Z">
+                                        </path>
+                                    </svg>
+                                </button>
                                 <button
                                     class="flex items-center justify-center px-4 py-2 border border-gray-500 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base"
                                     @click="reset" title="清空消息" type="button">

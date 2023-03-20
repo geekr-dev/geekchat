@@ -65,7 +65,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                 };
             }).catch(error => {
                 console.log(error);
@@ -103,7 +103,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '接收回复出错，请重试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                 };
             }).catch(error => {
                 if (state.messages[state.messages.length - 1].content === '正在识别语音，请稍候...') {
@@ -111,6 +111,21 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '网络请求失败，请重试' })
                 }
                 console.log(error);
+            });
+        },
+        imageMessage({ commit }, message) {
+            commit('addMessage', { 'role': 'user', 'content': message })
+            commit('addMessage', { 'role': 'assistant', 'content': '正在根据你提供的信息绘图，请稍候...' })
+            ChatAPI.imageMessage(message).then(response => {
+                commit('deleteMessage')
+                commit('addMessage', response.data);
+            }).catch(error => {
+                commit('deleteMessage')
+                if (error.response.status === 429) {
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
+                } else {
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请重试' });
+                }
             });
         },
         clearMessages({ commit }) {

@@ -50,5 +50,8 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('audio', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });
+        RateLimiter::for('image', function (Request $request) {
+            return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

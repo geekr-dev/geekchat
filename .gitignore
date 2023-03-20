@@ -5,7 +5,7 @@
 /public/build
 /storage/*.key
 /vendor
-/resources/views/analysis.blade.php
+/resources/views
 .env
 .env.backup
 .env.production

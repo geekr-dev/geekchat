@@ -35,7 +35,7 @@ export default {
     },
     computed: {
         buttonClass() {
-            return "flex items-center justify-center px-4 py-2 border border-green-600 hover:border-green-700 text-white rounded-md text-sm md:text-base cursor-pointer";
+            return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer";
         }
     },
     beforeUnmount() {

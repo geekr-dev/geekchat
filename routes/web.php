@@ -20,6 +20,7 @@ Route::get('/messages', ChatController::class . '@messages')->name('messages');
 Route::post('/chat', ChatController::class . '@chat')->name('chat')->middleware('throttle:chat');
 Route::get('/stream', ChatController::class . '@stream')->name('stream');
 Route::post('/audio', ChatController::class . '@audio')->name('audio')->middleware('throttle:audio');
+Route::post('/image', ChatController::class . '@image')->name('image')->middleware('throttle:imgae');
 Route::get('/reset', ChatController::class . '@reset')->name('reset');
 
 // 暂不开放用户认证功能
