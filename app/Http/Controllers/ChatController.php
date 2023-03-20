@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
@@ -72,6 +73,10 @@ class ChatController extends Controller
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode >= 400) {
                 echo "data: [ERROR] $httpCode";
+                if ($httpCode == 429) {
+                    // app key 耗尽自动切换到下一个免费的 key
+                    Artisan::call('app:update-open-ai-key');
+                }
             } else {
                 $respData .= $data;
                 echo $data;;

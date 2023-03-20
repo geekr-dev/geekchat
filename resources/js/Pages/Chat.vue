@@ -24,6 +24,7 @@ const chat = () => {
 
 const reset = () => {
     store.dispatch('clearMessages')
+    form.reset()
 }
 
 const audio = (blob) => {
@@ -38,6 +39,10 @@ const audioFailed = (error) => {
 }
 
 const image = () => {
+    if (!form.prompt) {
+        alert('请输入图片描述信息')
+        return
+    }
     store.dispatch('imageMessage', form.prompt)
 }
 
