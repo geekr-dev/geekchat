@@ -4,10 +4,9 @@
 
 ### Introduction
 
-This is a clone of ChatGPT with support for text, voice, stream and beautiful UI, made with Laravel 10 using the ChatGPT and Audio (Whisper model) API, as well as Inertia + Vue3 + Tailwind CSS:
+This is a clone of ChatGPT with support for text, voice, translate, image, stream and beautiful UI, made with Laravel 10 using the ChatGPT and Audio (Whisper model) API, as well as Inertia + Vue3 + Tailwind CSS:
 
-<img width="658" alt="image" src="https://user-images.githubusercontent.com/114386672/224564157-2fb92c40-7a43-4156-9715-b76ea2cef46e.png">
-
+<img width="915" alt="2a2bf9f1a8b2b7ec2b1b925eb5e9e75" src="https://user-images.githubusercontent.com/114386672/226558517-bf534744-c8d6-4a9f-9f3c-282aa8e96330.png">
 
 ### Quick Start
 
