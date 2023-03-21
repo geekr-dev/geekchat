@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class UpdateOpenAiKey extends Command
 {
@@ -26,6 +27,13 @@ class UpdateOpenAiKey extends Command
     public function handle(): void
     {
         $this->info('Updating OpenAI key...');
+        $response = Http::withToken(config('openai.api_key'))->timeout(15)
+            ->get(config('openai.base_uri') . '/dashboard/billing/credit_grants');
+        $amount = $response->json('total_available');
+        if ($amount > 0) {
+            $this->info('Current key is still valid.');
+            return;
+        }
         $keys = file(base_path('openai_keys'));
         $new_key = trim(array_shift($keys), "\n");
         if (!$new_key) {
