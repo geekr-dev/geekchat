@@ -15,7 +15,7 @@ use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
+    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
 
     public function index()
     {

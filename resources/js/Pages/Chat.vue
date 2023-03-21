@@ -71,7 +71,7 @@ const translate = () => {
 </script>
 
 <template>
-    <Head title="GeekChat - 支持文字、语音、绘图的免费体验版ChatGPT"></Head>
+    <Head title="GeekChat - 支持文字、语音、翻译、画图的聊天机器人"></Head>
     <div>
         <div class="max-w-5xl mx-auto">
             <div class="py-8">
@@ -84,7 +84,7 @@ const translate = () => {
                             </div><span
                                 class="bg-gradient-to-r from-purple-400 to-pink-500 px-3 py-1 text-xs font-semibold text-white text-center rounded-full inline-block ">Beta</span>
                         </div>
-                        <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、绘图的免费体验版ChatGPT
+                        <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、翻译、画图的聊天机器人
                         </div>
                     </div>
                 </div>
