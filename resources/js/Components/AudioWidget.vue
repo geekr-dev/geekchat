@@ -20,6 +20,7 @@ export default {
         time: { type: Number, default: 30 },
         bitRate: { type: Number, default: 128 },
         sampleRate: { type: Number, default: 44100 },
+        isTyping: { type: Boolean, default: false },
     },
     components: {
         IconButton,
@@ -35,7 +36,11 @@ export default {
     },
     computed: {
         buttonClass() {
-            return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer";
+            if (this.isTyping) {
+                return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer opacity-25";
+            } else {
+                return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer";
+            }
         }
     },
     beforeUnmount() {
@@ -45,6 +50,10 @@ export default {
     },
     methods: {
         toggleRecording() {
+            if (this.isTyping) {
+                alert("同时只能处理一个消息");
+                return;
+            }
             // 用户点击按钮触发
             this.recording = !this.recording;
             if (this.recording) {

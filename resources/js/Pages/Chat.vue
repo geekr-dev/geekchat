@@ -18,6 +18,9 @@ const form = useForm({
 })
 
 const chat = () => {
+    if (isTyping.value) {
+        return;
+    }
     store.dispatch('chatMessage', form.prompt)
     form.reset()
 }
@@ -28,6 +31,9 @@ const reset = () => {
 }
 
 const audio = (blob) => {
+    if (isTyping.value) {
+        return;
+    }
     store.dispatch('audioMessage', blob)
 }
 
@@ -40,10 +46,26 @@ const audioFailed = (error) => {
 
 const image = () => {
     if (!form.prompt) {
-        alert('请输入图片描述信息')
+        alert('请在输入框输入图片描述信息')
         return
     }
+    if (isTyping.value) {
+        return;
+    }
     store.dispatch('imageMessage', form.prompt)
+    form.reset()
+}
+
+const translate = () => {
+    if (!form.prompt) {
+        alert('请在输入框输入待翻译内容')
+        return
+    }
+    if (isTyping.value) {
+        return;
+    }
+    store.dispatch('translateMessage', form.prompt)
+    form.reset()
 }
 
 </script>
@@ -51,7 +73,7 @@ const image = () => {
 <template>
     <Head title="GeekChat - 支持文字、语音、绘图的免费体验版ChatGPT"></Head>
     <div>
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             <div class="py-8">
                 <div class="p-3 sm:p-5 flex items-center justify-center">
                     <div>
@@ -63,37 +85,6 @@ const image = () => {
                                 class="bg-gradient-to-r from-purple-400 to-pink-500 px-3 py-1 text-xs font-semibold text-white text-center rounded-full inline-block ">Beta</span>
                         </div>
                         <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、绘图的免费体验版ChatGPT
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center justify-center">
-                    <div class="my-4 grid sm:grid-cols-1 gap-y-2 gap-x-6">
-                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
-                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
-                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
-                                </path>
-                            </svg>
-                            <div class="text-sm">文字消息：输入框输入问题，点击纸飞机按钮</div>
-                        </div>
-                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
-                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
-                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
-                                </path>
-                            </svg>
-                            <div class="text-sm">语音消息：点击话筒按钮讲话，讲完点击停止按钮</div>
-                        </div>
-                        <div class="flex items-center justify-start space-x-1"><svg stroke="currentColor"
-                                fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" class="text-green-500 w-4 h-4"
-                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm193.5 301.7l-210.6 292a31.8 31.8 0 0 1-51.7 0L318.5 484.9c-3.8-5.3 0-12.7 6.5-12.7h46.9c10.2 0 19.9 4.9 25.9 13.3l71.2 98.8 157.2-218c6-8.3 15.6-13.3 25.9-13.3H699c6.5 0 10.3 7.4 6.5 12.7z">
-                                </path>
-                            </svg>
-                            <div class="text-sm">绘图消息：输入框输入描述，点击图片按钮</div>
                         </div>
                     </div>
                 </div>
@@ -136,29 +127,42 @@ const image = () => {
             </div>
         </div>
         <div class="sticky bottom-0 left-0 right-0">
-            <div class="max-w-2xl mx-auto w-full">
+            <div class="max-w-5xl mx-auto w-full">
                 <hr>
                 <div class="p-4 bg-white px-4">
                     <div class="pb-safe">
                         <form class="grid grid-cols-1 gap-2 md:flex md:items-start md:justify-center md:space-x-2 mb-2"
                             @submit.prevent="chat">
-                            <textarea required id="chat-input-textbox" placeholder="输入你的问题..." name="prompt"
+                            <textarea required id="chat-input-textbox" placeholder="输入你的问题/翻译内容/图片描述..." name="prompt"
                                 autocomplete="off" v-model="form.prompt" style="height: 40px !important;"
                                 class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-y"></textarea>
                             <div class="flex space-x-2">
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true }"
-                                    title="发送消息" type="submit">
+                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    title="发送消息" type="submit" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                     </svg>
                                 </button>
-                                <audio-widget @audio-upload="audio" @audio-failed="audioFailed" />
+                                <audio-widget @audio-upload="audio" @audio-failed="audioFailed" :is-typing="isTyping" />
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true }"
-                                    @click="image" title="绘制图片" type="button">
+                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    @click="translate" title="中英互译" type="button" :disabled="isTyping">
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                        width="24" height="24" viewBox="0 0 24 24">
+                                        <g fill="none">
+                                            <path d="M0 0h24v24H0z"></path>
+                                            <path fill="#FFFFFF"
+                                                d="M17 10.5a1.5 1.5 0 0 1 1.493 1.356L18.5 12v.5h1a2 2 0 0 1 1.995 1.85l.005.15v3a2 2 0 0 1-1.85 1.995l-.15.005h-1v.5a1.5 1.5 0 0 1-2.993.144L15.5 20v-.5h-1a2 2 0 0 1-1.995-1.85l-.005-.15v-3a2 2 0 0 1 1.85-1.995l.15-.005h1V12a1.5 1.5 0 0 1 1.5-1.5Zm-12 4A1.5 1.5 0 0 1 6.5 16v1a.5.5 0 0 0 .5.5h3a1.5 1.5 0 0 1 0 3H7A3.5 3.5 0 0 1 3.5 17v-1A1.5 1.5 0 0 1 5 14.5Zm10.5.5h-1v2h1v-2Zm4 0h-1v2h1v-2ZM9.5 2.5a1.5 1.5 0 0 1 0 3h-4v1H9a1.5 1.5 0 1 1 0 3H5.5v1H10a1.5 1.5 0 0 1 0 3H4.1a1.6 1.6 0 0 1-1.6-1.6V4.1a1.6 1.6 0 0 1 1.6-1.6h5.4Zm7.5 1A3.5 3.5 0 0 1 20.5 7v2a1.5 1.5 0 0 1-3 0V7a.5.5 0 0 0-.5-.5h-3a1.5 1.5 0 0 1 0-3h3Z">
+                                            </path>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button
+                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    @click="image" title="AI绘图" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         width="24" height="24" viewBox="0 0 24 24">
                                         <path fill="#FFFFFF"
@@ -167,8 +171,8 @@ const image = () => {
                                     </svg>
                                 </button>
                                 <button
-                                    class="flex items-center justify-center px-4 py-2 border border-gray-500 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base"
-                                    @click="reset" title="清空消息" type="button">
+                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-gray-500 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    @click="reset" title="清空消息" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"

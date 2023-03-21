@@ -46,6 +46,26 @@ class ChatController extends Controller
     }
 
     /**
+     * Handle the incoming prompt.
+     */
+    public function translate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'prompt' => 'required|string'
+        ]);
+        $messages = $request->session()->get('messages', [$this->preset]);
+        // 判断内容是中文还是英文
+        $isChinese = preg_match('/[\x{4e00}-\x{9fa5}]/u', $request->input('prompt'));
+        $prefix = $isChinese ? '请将以下内容翻译成英文: ' : '请将以下内容翻译成中文: ';
+        $userMessage = ['role' => 'user', 'content' => $prefix . $request->input('prompt')];
+        $messages[] = $userMessage;
+        $request->session()->put('messages', $messages);
+        $chatId = Str::uuid();
+        $request->session()->put('chat_id', $chatId);
+        return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
+    }
+
+    /**
      * Handle the stream response.
      */
     public function stream(Request $request)

@@ -14,6 +14,13 @@ export default {
         return fetch(CHAT_CONFIG.BASE_URL + '/chat', { method: 'POST', body: formData })
     },
 
+    // 发送翻译消息
+    translateMessage: (message) => {
+        const formData = new FormData();
+        formData.append('prompt', message);
+        return fetch(CHAT_CONFIG.BASE_URL + '/translate', { method: 'POST', body: formData })
+    },
+
     // 发送语音消息
     audioMessage: (blob) => {
         const formData = new FormData();
