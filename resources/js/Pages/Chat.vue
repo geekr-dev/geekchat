@@ -12,9 +12,10 @@ onMounted(() => {
 
 const messages = computed(() => store.state.messages.filter(message => message != undefined))
 const isTyping = computed(() => store.state.isTyping)
+const apiKey = computed(() => store.state.apiKey ? '*'.repeat(4) + store.state.apiKey.substr(length - 4, 4) : '')
 
 const form = useForm({
-    prompt: null,
+    prompt: null
 })
 
 const chat = () => {
@@ -68,6 +69,11 @@ const translate = () => {
     form.reset()
 }
 
+const enterApiKey = () => {
+    const api_key = prompt("输入你的 OpenAI API Key（使用自己的 Key 可以专享独立的调用通道，不受共享通道频率影响，并且可以绘制更精准的大尺寸图片）：");
+    store.dispatch('validAndSetApiKey', api_key)
+}
+
 </script>
 
 <template>
@@ -81,10 +87,32 @@ const translate = () => {
                                 src="https://image.gstatics.cn/icon/geekchat.png" alt="GeekChat"
                                 class="rounded-lg w-12 h-12">
                             <div class="font-semibold text-4xl sm:text-5xl">Geek<span class="text-blue-500">Chat</span>
-                            </div><span
-                                class="bg-gradient-to-r from-purple-400 to-pink-500 px-3 py-1 text-xs font-semibold text-white text-center rounded-full inline-block ">Beta</span>
+                            </div>
                         </div>
                         <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、翻译、画图的聊天机器人
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5">
+                    <div class="text-sm text-center">
+                        <div>
+                            <button v-if="apiKey" @click="enterApiKey"
+                                class="text-blue-500 hover:underline font-semibold inline-flex space-x-2 disabled:text-gray-500"><svg
+                                    stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
+                                    class="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
+                                    </path>
+                                </svg><span>修改 API Key ({{ apiKey }})</span></button>
+                            <button v-else @click="enterApiKey"
+                                class="inline-flex items-center justify-center rounded-full px-4 py-3 text-sm shadow-md bg-blue-300 text-white hover:bg-blue-500 transition-all active:bg-blue-600 group font-semibold text-sm disabled:bg-gray-400 space-x-2">
+                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
+                                    class="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
+                                    </path>
+                                </svg><span>输入 API Key（可选）</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -138,7 +166,7 @@ const translate = () => {
                                 class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-y"></textarea>
                             <div class="flex space-x-2">
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
                                     title="发送消息" type="submit" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -148,7 +176,7 @@ const translate = () => {
                                 </button>
                                 <audio-widget @audio-upload="audio" @audio-failed="audioFailed" :is-typing="isTyping" />
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
                                     @click="translate" title="中英互译" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         width="24" height="24" viewBox="0 0 24 24">
@@ -161,7 +189,7 @@ const translate = () => {
                                     </svg>
                                 </button>
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
                                     @click="image" title="AI绘图" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         width="24" height="24" viewBox="0 0 24 24">
@@ -171,7 +199,7 @@ const translate = () => {
                                     </svg>
                                 </button>
                                 <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 border border-gray-500 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
+                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
                                     @click="reset" title="清空消息" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">

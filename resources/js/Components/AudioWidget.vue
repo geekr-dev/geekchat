@@ -37,9 +37,9 @@ export default {
     computed: {
         buttonClass() {
             if (this.isTyping) {
-                return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer opacity-25";
+                return "flex items-center justify-center px-4 py-2 border border-blue-600 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base cursor-pointer opacity-25";
             } else {
-                return "flex items-center justify-center px-4 py-2 border border-green-600 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm md:text-base cursor-pointer";
+                return "flex items-center justify-center px-4 py-2 border border-blue-600 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base cursor-pointer";
             }
         }
     },

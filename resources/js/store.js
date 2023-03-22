@@ -6,6 +6,7 @@ const store = createStore({
     state() {
         return {
             messages: [],
+            apiKey: '',
             isTyping: false,
         }
     },
@@ -25,10 +26,14 @@ const store = createStore({
         toggleTyping(state) {
             state.isTyping = !state.isTyping
         },
+        setApiKey(state, apiKey) {
+            state.apiKey = apiKey;
+        }
     },
     actions: {
         // 初始化消息
         initMessages({ commit }) {
+            commit('setApiKey', window.localStorage.getItem('GEEKCHAT_API_KEY', ''));
             ChatAPI.getMessages().then(response => {
                 commit('initMessages', response.data);
             }).catch(error => {
@@ -49,7 +54,8 @@ const store = createStore({
                 return response.json();
             }).then(data => {
                 commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
-                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
+                const apiKey = state.apiKey ? btoa(state.apiKey) : '';
+                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
                     if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
                         state.messages[state.messages.length - 1].content = '';
@@ -67,11 +73,15 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
+                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
+                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('toggleTyping')
                 };
             }).catch(error => {
                 console.log(error);
-                commit('toggleTyping')
+                if (state.isTyping) {
+                    commit('toggleTyping')
+                }
             });
         },
         translateMessage({ state, commit }, message) {
@@ -88,7 +98,8 @@ const store = createStore({
                 return response.json();
             }).then(data => {
                 commit('addMessage', { 'role': 'assistant', 'content': '正在自动翻译你提交的内容，请稍候...' })
-                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
+                const apiKey = state.apiKey ? btoa(state.apiKey) : '';
+                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
                     if (state.messages[state.messages.length - 1].content === '正在自动翻译你提交的内容，请稍候...') {
                         state.messages[state.messages.length - 1].content = '';
@@ -106,11 +117,15 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
+                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
+                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('toggleTyping')
                 };
             }).catch(error => {
                 console.log(error);
-                commit('toggleTyping')
+                if (state.isTyping) {
+                    commit('toggleTyping')
+                }
             });
         },
         audioMessage({ state, commit }, blob) {
@@ -128,8 +143,12 @@ const store = createStore({
                 return response.json();
             }).then(data => {
                 commit('addMessage', data.message); // 将语音识别结果作为用户文本信息
+                if (data.message.role === 'assistant') {
+                    throw new Error('语音识别失败，请重试');
+                }
                 commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
-                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}`);
+                const apiKey = state.apiKey ? btoa(state.apiKey) : '';
+                const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
                     if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
                         state.messages[state.messages.length - 1].content = '';
@@ -147,7 +166,9 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
+                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
+                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('toggleTyping')
                 };
             }).catch(error => {
                 if (state.messages[state.messages.length - 1].content === '正在识别语音，请稍候...') {
@@ -155,7 +176,9 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '网络请求失败，请重试' })
                 }
                 console.log(error);
-                commit('toggleTyping')
+                if (state.isTyping) {
+                    commit('toggleTyping')
+                }
             });
         },
         imageMessage({ commit }, message) {
@@ -174,6 +197,24 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请重试' });
                 }
                 commit('toggleTyping')
+            });
+        },
+        validAndSetApiKey({ commit }, apiKey) {
+            if (apiKey === null || apiKey === undefined || apiKey === '') {
+                // 设置为空则删除本地存储的apikey
+                commit('setApiKey', apiKey);
+                window.localStorage.removeItem('GEEKCHAT_API_KEY');
+                return;
+            }
+            ChatAPI.validApiKey(apiKey).then(response => {
+                if (response.data.valid != true) {
+                    alert(response.data.error);
+                    return;
+                }
+                commit('setApiKey', apiKey);
+                window.localStorage.setItem('GEEKCHAT_API_KEY', apiKey);
+            }).catch(error => {
+                alert('网络请求失败，请刷新页面重试');
             });
         },
         clearMessages({ commit }) {

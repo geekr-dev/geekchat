@@ -7,6 +7,7 @@ namespace App\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
+ * @method static \App\Client\OpenAI withToken($token = '')
  * @method static string chat()
  * @method static string completion()
  * @method static string embeddings()

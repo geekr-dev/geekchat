@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
@@ -34,7 +35,8 @@ class ChatController extends Controller
     public function chat(Request $request): JsonResponse
     {
         $request->validate([
-            'prompt' => 'required|string'
+            'prompt' => 'required|string',
+            'api_key' => 'sometimes|string',
         ]);
         $messages = $request->session()->get('messages', [$this->preset]);
         $userMessage = ['role' => 'user', 'content' => $request->input('prompt')];
@@ -51,7 +53,8 @@ class ChatController extends Controller
     public function translate(Request $request): JsonResponse
     {
         $request->validate([
-            'prompt' => 'required|string'
+            'prompt' => 'required|string',
+            'api_key' => 'sometimes|string',
         ]);
         $messages = $request->session()->get('messages', [$this->preset]);
         // 判断内容是中文还是英文
@@ -85,25 +88,29 @@ class ChatController extends Controller
 
         // 实时将流式响应数据发送到客户端
         $respData = '';
+        $apiKey = $request->input('api_key');
+        if ($apiKey) {
+            $apiKey = base64_decode($apiKey);
+        }
         header('Access-Control-Allow-Origin: *');
         header('Content-type: text/event-stream');
         header('Cache-Control: no-cache');
         header('X-Accel-Buffering: no');
-        OpenAI::chat($params, function ($ch, $data) use (&$respData) {
+        OpenAI::withToken($apiKey)->chat($params, function ($ch, $data) use ($apiKey, &$respData) {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode >= 400) {
                 echo "data: [ERROR] $httpCode";
-                if ($httpCode == 429) {
+                if (($httpCode == 400 || $httpCode == 401) && empty($apiKey)) {
                     // app key 耗尽自动切换到下一个免费的 key
                     Artisan::call('app:update-open-ai-key');
                 }
             } else {
                 $respData .= $data;
                 echo $data;;
-                ob_flush();
-                flush();
-                return strlen($data);
             }
+            ob_flush();
+            flush();
+            return strlen($data);
         });
 
         // 将响应数据存储到当前会话中以便刷新页面后可以看到聊天记录
@@ -137,7 +144,8 @@ class ChatController extends Controller
                 File::types(['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'])
                     ->min(1)  // 最小不低于 1 KB
                     ->max(10 * 1024), // 最大不超过 10 MB
-            ]
+            ],
+            'api_key' => 'sometimes|string',
         ]);
 
         // 保存到本地
@@ -148,24 +156,25 @@ class ChatController extends Controller
         $messages = $request->session()->get('messages', [
             ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Make Mandarin Chinese the primary language']
         ]);
-
         // $path = 'audios/2023/03/09/test.wav';（测试用）
         // 调用 speech to text API 将语音转化为文字
         try {
-            $response = OpenAI::transcribe([
+            $response = OpenAI::withToken($request->input('api_key'))->transcribe([
                 'model' => 'whisper-1',
                 'file' => curl_file_create(Storage::disk('local')->path($path)),
                 'response_format' => 'verbose_json',
             ]);
         } catch (Exception $exception) {
-            return $this->toJsonResponse($request, SYSTEM_ERROR, $messages);
+            return response()->json(['message' => ['role' => 'assistant', 'content' => SYSTEM_ERROR]]);
         } finally {
             Storage::disk('local')->delete($path);  // 处理完毕删除音频文件
         }
-
         $result = json_decode($response);
         if (empty($result->text)) {
-            return $this->toJsonResponse($request, '对不起，我没有听清你说的话，请再试一次', $messages);
+            if ($request->input('api_key')) {
+                return response()->json(['message' => ['role' => 'assistant', 'content' => '识别语音失败，请确保你的KEY有效']]);
+            }
+            return response()->json(['message' => ['role' => 'assistant', 'content' => '对不起，我没有听清你说的话，请再试一次']]);
         }
 
         // 接下来的流程和 ChatGPT 一样
@@ -180,20 +189,26 @@ class ChatController extends Controller
     public function image(Request $request): JsonResponse
     {
         $request->validate([
-            'prompt' => 'required|string'
+            'prompt' => 'required|string',
+            'api_key' => 'sometimes|string',
         ]);
         $messages = $request->session()->get('messages', [$this->preset]);
         $prompt = $request->input('prompt');
         $userMsg = ['role' => 'user', 'content' => $prompt];
         $messages[] = $userMsg;
-        $response = OpenAI::image([
+        $apiKey = $request->input('api_key');
+        $size = '256x256';
+        if (!empty($apiKey)) {
+            $size = '1024x1024';
+        }
+        $response = OpenAI::withToken($apiKey)->image([
             "prompt" => $prompt,
             "n" => 1,
-            "size" => "256x256",
+            "size" => $size,
             "response_format" => "url",
         ]);
         $result = json_decode($response);
-        $image = '';
+        $image = '画图失败，如果你设置了自己的key，请确保它是有效的';
         if (isset($result->data[0]->url)) {
             $image = '![](' . $result->data[0]->url . ')';
         }
@@ -211,5 +226,22 @@ class ChatController extends Controller
         $request->session()->forget('messages');
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function valid(Request $request): JsonResponse
+    {
+        $request->validate([
+            'api_key' => 'required|string'
+        ]);
+        $apiKey = $request->input('api_key');
+        if (empty($apiKey)) {
+            return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
+        }
+        $response = Http::withToken($apiKey)->timeout(15)
+            ->get(config('openai.base_uri') . '/dashboard/billing/credit_grants');
+        if ($response->failed()) {
+            return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
+        }
+        return response()->json(['valid' => true]);
     }
 }

@@ -25,6 +25,10 @@ export default {
     audioMessage: (blob) => {
         const formData = new FormData();
         formData.append('audio', blob);
+        const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
+        if (api_key) {
+            formData.append('api_key', api_key);
+        }
         return fetch(CHAT_CONFIG.BASE_URL + '/audio', { method: 'POST', body: formData })
     },
 
@@ -32,7 +36,18 @@ export default {
     imageMessage: (message) => {
         const formData = new FormData();
         formData.append('prompt', message);
+        const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
+        if (api_key) {
+            formData.append('api_key', api_key);
+        }
         return axios.post(CHAT_CONFIG.BASE_URL + '/image', formData, { responseType: 'json' })
+    },
+
+    // 验证API Key
+    validApiKey: (api_key) => {
+        const formData = new FormData();
+        formData.append('api_key', api_key);
+        return axios.post(CHAT_CONFIG.BASE_URL + '/valid', formData, { responseType: 'json' })
     },
 
     // 清空所有消息

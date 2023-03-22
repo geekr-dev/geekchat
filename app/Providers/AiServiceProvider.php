@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Client\OpenAI;
 use Illuminate\Support\ServiceProvider;
 use App\Exceptions\OpenAI\ApiKeyIsMissing;
-use Orhanerday\OpenAi\OpenAi;
 
 /**
  * @internal
@@ -18,7 +18,7 @@ class AiServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(OpenAi::class, static function (): OpenAi {
+        $this->app->singleton(OpenAI::class, static function (): OpenAI {
             $apiKey = config('openai.api_key');
             $baseUri = config('openai.base_uri');
             $httpProxy = config('openai.http_proxy');
@@ -28,7 +28,7 @@ class AiServiceProvider extends ServiceProvider
                 throw ApiKeyIsMissing::create();
             }
 
-            $openAi = new OpenAi($apiKey);
+            $openAi = new OpenAI($apiKey);
             $openAi->setTimeout(60); // 超时时间默认是60s
             if ($organization !== null) {
                 $openAi->setORG($organization);

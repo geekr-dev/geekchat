@@ -45,13 +45,19 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
         RateLimiter::for('chat', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return $request->input('api_key') || $this->app->environment('development')
+                ? Limit::none()
+                : Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });
         RateLimiter::for('audio', function (Request $request) {
-            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+            return $request->input('api_key') || $this->app->environment('development')
+                ? Limit::none()
+                : Limit::perMinute(15)->by($request->user()?->id ?: $request->ip());
         });
         RateLimiter::for('image', function (Request $request) {
-            return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
+            return $request->input('api_key') || $this->app->environment('development')
+                ? Limit::none()
+                : Limit::perHour(5)->by($request->user()?->id ?: $request->ip());
         });
     }
 }
