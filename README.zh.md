@@ -20,6 +20,9 @@
 
 <img width="915" alt="2a2bf9f1a8b2b7ec2b1b925eb5e9e75" src="https://user-images.githubusercontent.com/114386672/226558517-bf534744-c8d6-4a9f-9f3c-282aa8e96330.png">
 
+支持设置自己的 OpenAI API KEY：
+
+<img width="753" alt="d0f87acf563e0a1c7798c0088d1b961" src="https://user-images.githubusercontent.com/114386672/226852264-fce3eeaf-5f77-4ac3-b841-2198da21a890.png">
 
 ### 快速启动
 
