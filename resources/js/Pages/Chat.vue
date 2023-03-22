@@ -93,7 +93,7 @@ const enterApiKey = () => {
                         </div>
                     </div>
                 </div>
-                <div class="mt-5">
+                <div>
                     <div class="text-sm text-center">
                         <div>
                             <button v-if="apiKey" @click="enterApiKey"
