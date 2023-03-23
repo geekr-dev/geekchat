@@ -105,7 +105,7 @@ const regenerate = () => {
     <Head title="GeekChat - 支持文字、语音、翻译、画图的聊天机器人"></Head>
     <div>
         <div class="max-w-5xl mx-auto">
-            <div class="py-8">
+            <div class="py-5">
                 <div class="p-3 sm:p-5 flex items-center justify-center">
                     <div>
                         <div class="flex items-center justify-center space-x-2"><img
@@ -209,8 +209,9 @@ const regenerate = () => {
                         <form class="grid grid-cols-1 gap-2 md:flex md:items-start md:justify-center md:space-x-2 mb-2"
                             @submit.prevent="chat">
                             <textarea required id="chat-input-textbox" placeholder="输入你的问题/翻译内容/图片描述..." name="prompt"
-                                autocomplete="off" v-model="form.prompt" style="height: 40px !important;"
-                                class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-y"></textarea>
+                                autocomplete="off" v-model="form.prompt"
+                                :style="{ height: (form.prompt && form.prompt.split('\n').length > 1) ? form.prompt.split('\n').length * 2 + 'rem' : '40px' }"
+                                class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-none"></textarea>
                             <div class="flex space-x-2">
                                 <button
                                     :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
