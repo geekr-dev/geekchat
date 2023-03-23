@@ -8,6 +8,8 @@ const store = createStore({
             messages: [],
             apiKey: '',
             isTyping: false,
+            lastAction: '',
+            lastMessage: '',
         }
     },
     mutations: {
@@ -28,22 +30,37 @@ const store = createStore({
         },
         setApiKey(state, apiKey) {
             state.apiKey = apiKey;
+        },
+        setLastLog(state, { action, message }) {
+            state.lastAction = action;
+            state.lastMessage = message;
         }
     },
     actions: {
         // 初始化消息
         initMessages({ commit }) {
             commit('setApiKey', window.localStorage.getItem('GEEKCHAT_API_KEY', ''));
+            commit('setLastLog', { action: window.localStorage.getItem('GEEKCHAT_LAST_ACTION', ''), message: window.localStorage.getItem('GEEKCHAT_LAST_MESSAGE', '') });
             ChatAPI.getMessages().then(response => {
                 commit('initMessages', response.data);
             }).catch(error => {
                 commit('initMessages', []);
             });
         },
-        chatMessage({ state, commit }, message) {
+        chatMessage({ state, commit }, { message, regen = false }) {
             commit('toggleTyping')
-            commit('addMessage', { 'role': 'user', 'content': message })
-            ChatAPI.chatMessage(message).then(response => {
+            console.log(regen)
+            if (!regen) {
+                // 第一次才输出用户消息并记录日志
+                commit('addMessage', { 'role': 'user', 'content': message })
+                window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'chat');
+                window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', message);
+                commit('setLastLog', { action: 'chat', message: message });
+            } else if (state.messages[state.messages.length - 1].role === 'assistant') {
+                // 跟服务端逻辑一致，先把最后一条回复删掉
+                commit('deleteMessage');
+            }
+            ChatAPI.chatMessage(message, regen).then(response => {
                 if (response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
@@ -84,10 +101,17 @@ const store = createStore({
                 }
             });
         },
-        translateMessage({ state, commit }, message) {
+        translateMessage({ state, commit }, { message, regen = false }) {
             commit('toggleTyping')
-            commit('addMessage', { 'role': 'user', 'content': message })
-            ChatAPI.translateMessage(message).then(response => {
+            if (!regen) {
+                commit('addMessage', { 'role': 'user', 'content': message })
+                window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'translate');
+                window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', message);
+                commit('setLastLog', { action: 'translate', message: message });
+            } else if (state.messages[state.messages.length - 1].role === 'assistant') {
+                commit('deleteMessage');
+            }
+            ChatAPI.translateMessage(message, regen).then(response => {
                 if (response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
@@ -143,6 +167,9 @@ const store = createStore({
                 return response.json();
             }).then(data => {
                 commit('addMessage', data.message); // 将语音识别结果作为用户文本信息
+                window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'audio');
+                window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', data.message.content);
+                commit('setLastLog', { action: 'audio', message: data.message.content });
                 if (data.message.role === 'assistant') {
                     throw new Error('语音识别失败，请重试');
                 }
@@ -181,11 +208,18 @@ const store = createStore({
                 }
             });
         },
-        imageMessage({ commit }, message) {
+        imageMessage({ state, commit }, { message, regen = false }) {
             commit('toggleTyping')
-            commit('addMessage', { 'role': 'user', 'content': message })
+            if (!regen) {
+                commit('addMessage', { 'role': 'user', 'content': message })
+                window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'image');
+                window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', message);
+                commit('setLastLog', { action: 'image', message: message });
+            } else if (state.messages[state.messages.length - 1].role === 'assistant') {
+                commit('deleteMessage');
+            }
             commit('addMessage', { 'role': 'assistant', 'content': '正在根据你提供的信息绘图，请稍候...' })
-            ChatAPI.imageMessage(message).then(response => {
+            ChatAPI.imageMessage(message, regen).then(response => {
                 commit('deleteMessage')
                 commit('addMessage', response.data);
                 commit('toggleTyping')
@@ -220,6 +254,9 @@ const store = createStore({
         clearMessages({ commit }) {
             ChatAPI.clearMessages().then(response => {
                 commit('clearMessages');
+                window.localStorage.removeItem('GEEKCHAT_LAST_ACTION');
+                window.localStorage.removeItem('GEEKCHAT_LAST_MESSAGE');
+                commit('setLastLog', { action: '', message: '' });
             }).catch(error => {
                 console.log(error);
             });

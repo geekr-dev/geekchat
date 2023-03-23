@@ -8,16 +8,18 @@ export default {
     },
 
     // 发送文本消息
-    chatMessage: (message) => {
+    chatMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
+        formData.append('regen', regen);
         return fetch(CHAT_CONFIG.BASE_URL + '/chat', { method: 'POST', body: formData })
     },
 
     // 发送翻译消息
-    translateMessage: (message) => {
+    translateMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
+        formData.append('regen', regen);
         return fetch(CHAT_CONFIG.BASE_URL + '/translate', { method: 'POST', body: formData })
     },
 
@@ -33,9 +35,10 @@ export default {
     },
 
     // 发送画图消息
-    imageMessage: (message) => {
+    imageMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
+        formData.append('regen', regen);
         const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
         if (api_key) {
             formData.append('api_key', api_key);

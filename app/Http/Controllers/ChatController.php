@@ -36,12 +36,25 @@ class ChatController extends Controller
     {
         $request->validate([
             'prompt' => 'required|string',
+            'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
+        if ($regen && count($messages) == 1) {
+            // 处理服务端session已过期的情况
+            $regen = false;
+        }
         $userMessage = ['role' => 'user', 'content' => $request->input('prompt')];
-        $messages[] = $userMessage;
-        $request->session()->put('messages', $messages); // 基于session存储当前会话信息
+        if (!$regen) {
+            // 基于session存储当前会话信息
+            $messages[] = $userMessage;
+            $request->session()->put('messages', $messages);
+        } elseif ($messages[count($messages) - 1]['role'] == 'assistant') {
+            // 重试则删除最后一条回复
+            array_pop($messages);
+            $request->session()->put('messages', $messages);
+        }
         $chatId = Str::uuid(); // 生成一个唯一聊天ID作为下次请求的凭证
         $request->session()->put('chat_id', $chatId);
         return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
@@ -54,15 +67,25 @@ class ChatController extends Controller
     {
         $request->validate([
             'prompt' => 'required|string',
+            'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
+        if ($regen && count($messages) == 1) {
+            $regen = false;
+        }
         // 判断内容是中文还是英文
         $isChinese = preg_match('/[\x{4e00}-\x{9fa5}]/u', $request->input('prompt'));
         $prefix = $isChinese ? '请将以下内容翻译成英文: ' : '请将以下内容翻译成中文: ';
         $userMessage = ['role' => 'user', 'content' => $prefix . $request->input('prompt')];
-        $messages[] = $userMessage;
-        $request->session()->put('messages', $messages);
+        if (!$regen) {
+            $messages[] = $userMessage;
+            $request->session()->put('messages', $messages); // 基于session存储当前会话信息
+        } elseif ($messages[count($messages) - 1]['role'] == 'assistant') {
+            array_pop($messages);
+            $request->session()->put('messages', $messages);
+        }
         $chatId = Str::uuid();
         $request->session()->put('chat_id', $chatId);
         return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
@@ -154,7 +177,7 @@ class ChatController extends Controller
         $path = $request->audio->storeAs($dir, $fileName, 'local');
 
         $messages = $request->session()->get('messages', [
-            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Make Mandarin Chinese the primary language']
+            ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Make Mandarin Chinese the primary language']
         ]);
         // $path = 'audios/2023/03/09/test.wav';（测试用）
         // 调用 speech to text API 将语音转化为文字
@@ -190,12 +213,21 @@ class ChatController extends Controller
     {
         $request->validate([
             'prompt' => 'required|string',
+            'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
+        if ($regen && count($messages) == 1) {
+            $regen = false;
+        }
         $prompt = $request->input('prompt');
         $userMsg = ['role' => 'user', 'content' => $prompt];
-        $messages[] = $userMsg;
+        if (!$regen) {
+            $messages[] = $userMsg;
+        } elseif ($messages[count($messages) - 1]['role'] == 'assistant') {
+            array_pop($messages);
+        }
         $apiKey = $request->input('api_key');
         $size = '256x256';
         if (!empty($apiKey)) {

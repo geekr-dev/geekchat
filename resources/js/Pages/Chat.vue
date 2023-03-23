@@ -13,6 +13,8 @@ onMounted(() => {
 const messages = computed(() => store.state.messages.filter(message => message != undefined))
 const isTyping = computed(() => store.state.isTyping)
 const apiKey = computed(() => store.state.apiKey ? '*'.repeat(4) + store.state.apiKey.substr(length - 4, 4) : '')
+const lastMessage = computed(() => store.state.lastMessage)
+const lastAction = computed(() => store.state.lastAction)
 
 const form = useForm({
     prompt: null
@@ -22,7 +24,7 @@ const chat = () => {
     if (isTyping.value) {
         return;
     }
-    store.dispatch('chatMessage', form.prompt)
+    store.dispatch('chatMessage', { message: form.prompt })
     form.reset()
 }
 
@@ -53,7 +55,7 @@ const image = () => {
     if (isTyping.value) {
         return;
     }
-    store.dispatch('imageMessage', form.prompt)
+    store.dispatch('imageMessage', { message: form.prompt })
     form.reset()
 }
 
@@ -65,13 +67,36 @@ const translate = () => {
     if (isTyping.value) {
         return;
     }
-    store.dispatch('translateMessage', form.prompt)
+    store.dispatch('translateMessage', { message: form.prompt })
     form.reset()
 }
 
 const enterApiKey = () => {
-    const api_key = prompt("输入你的 OpenAI API Key（使用自己的 Key 可以专享独立的调用通道，不受共享通道频率影响，并且可以绘制更精准的大尺寸图片）：");
+    const api_key = prompt("输入你的 OpenAI API KEY（使用自己的 KEY 可以不受共享通道频率限制影响，还可以绘制大尺寸图片）：");
     store.dispatch('validAndSetApiKey', api_key)
+}
+
+const regenerate = () => {
+    if (!lastMessage.value || !lastAction.value) {
+        return
+    }
+    switch (lastAction.value) {
+        case "chat":
+            store.dispatch('chatMessage', { message: lastMessage.value, regen: true })
+            break
+        case "image":
+            store.dispatch('imageMessage', { message: lastMessage.value, regen: true })
+            break
+        case "translate":
+            store.dispatch('translateMessage', { message: lastMessage.value, regen: true })
+            break
+        case "audio":
+            store.dispatch('chatMessage', { message: lastMessage.value, regen: true })
+            break
+        default:
+            alert('未知消息类型')
+            break
+    }
 }
 
 </script>
@@ -91,28 +116,29 @@ const enterApiKey = () => {
                         </div>
                         <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、翻译、画图的聊天机器人
                         </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="text-sm text-center">
                         <div>
-                            <button v-if="apiKey" @click="enterApiKey"
-                                class="text-blue-500 hover:underline font-semibold inline-flex space-x-2 disabled:text-gray-500"><svg
-                                    stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
-                                    class="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
-                                    </path>
-                                </svg><span>修改 API Key ({{ apiKey }})</span></button>
-                            <button v-else @click="enterApiKey"
-                                class="inline-flex items-center justify-center rounded-full px-4 py-3 text-sm shadow-md bg-blue-300 text-white hover:bg-blue-500 transition-all active:bg-blue-600 group font-semibold text-sm disabled:bg-gray-400 space-x-2">
-                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
-                                    class="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
-                                    </path>
-                                </svg><span>输入 API Key（可选）</span>
-                            </button>
+                            <div class="text-sm text-center">
+                                <div>
+                                    <button v-if="apiKey" @click="enterApiKey"
+                                        class="text-blue-500 hover:underline font-semibold inline-flex space-x-2 disabled:text-gray-500"><svg
+                                            stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
+                                            class="w-5 h-5" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
+                                            </path>
+                                        </svg><span>修改 API Key ({{ apiKey }})</span></button>
+                                    <button v-else @click="enterApiKey"
+                                        class="inline-flex items-center justify-center rounded-full px-4 py-3 text-sm shadow-md bg-blue-300 text-white hover:bg-blue-500 transition-all active:bg-blue-600 group font-semibold text-sm disabled:bg-gray-400 space-x-2">
+                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                            viewBox="0 0 512 512" class="w-5 h-5" height="1em" width="1em"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
+                                            </path>
+                                        </svg><span>输入 API Key（可选）</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,6 +178,27 @@ const enterApiKey = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="my-4 text-center w-full space-x-2" v-if="messages.length > 0 && !isTyping">
+                <button @click="regenerate" v-if="lastAction && lastMessage"
+                    class="inline-flex items-center justify-center rounded-full px-3 py-2 shadow-md bg-blue-400 text-white hover:bg-blue-500 transition-all active:bg-blue-600 group font-semibold text-xs">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" aria-hidden="true"
+                        class="w-4 h-4 mr-1 group-hover:rotate-180 transition-all" height="1em" width="1em"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                            clip-rule="evenodd"></path>
+                    </svg><span>重新生成</span>
+                </button>
+                <button @click="reset"
+                    class="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm shadow-md bg-gray-400 hover:bg-gray-500 text-white transition-all active:bg-gray-600 group font-semibold text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        aria-hidden="true" stroke="currentColor" class="w-4 h-4 mr-1 group-hover:rotate-180 transition-all"
+                        height="1em" width="1em">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg><span>清空消息</span>
+                </button>
             </div>
         </div>
         <div class="sticky bottom-0 left-0 right-0">
@@ -196,15 +243,6 @@ const enterApiKey = () => {
                                         <path fill="#FFFFFF"
                                             d="M4 2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4l-4 4l-4-4H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m15 13V7l-4 4l-2-2l-6 6h12M7 5a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2Z">
                                         </path>
-                                    </svg>
-                                </button>
-                                <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
-                                    @click="reset" title="清空消息" type="button" :disabled="isTyping">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                     </svg>
                                 </button>
                             </div>
