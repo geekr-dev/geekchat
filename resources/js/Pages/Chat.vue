@@ -105,7 +105,7 @@ const regenerate = () => {
     <Head title="GeekChat - 支持文字、语音、翻译、画图的聊天机器人"></Head>
     <div>
         <div class="max-w-5xl mx-auto">
-            <div class="py-5">
+            <div>
                 <div class="p-3 sm:p-5 flex items-center justify-center">
                     <div>
                         <div class="flex items-center justify-center space-x-2"><img
