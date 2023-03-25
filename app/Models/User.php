@@ -41,4 +41,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function getSubscribedAttribute(): bool
+    {
+        return $this->subscription_type > 0 && $this->subscription_ends_at > now();
+    }
 }

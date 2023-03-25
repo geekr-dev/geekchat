@@ -19,30 +19,24 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
+
+        <Head title="确认密码" />
 
         <div class="mb-4 text-sm text-gray-600">
-            This is a secure area of the application. Please confirm your password before continuing.
+            这是应用程序的安全区域。请在继续操作之前确认您的密码。
         </div>
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                    autofocus
-                />
+                <InputLabel for="password" value="密码" />
+                <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required
+                    autocomplete="current-password" autofocus />
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
             <div class="flex justify-end mt-4">
                 <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Confirm
+                    确认
                 </PrimaryButton>
             </div>
         </form>

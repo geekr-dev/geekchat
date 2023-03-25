@@ -13,7 +13,7 @@ return [
     */
 
     'api_key' => env('OPENAI_API_KEY'),
-    'base_uri' => env('OPENAI_BASE_URI', 'api.openai.com'),
+    'base_uri' => env('OPENAI_BASE_URI', 'https://api.openai.com'),
     'organization' => env('OPENAI_ORGANIZATION'),
     'http_proxy' => env('HTTP_PROXY'),
 ];

@@ -62,7 +62,7 @@ const store = createStore({
             }
             ChatAPI.chatMessage(message, regen).then(response => {
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
                 } else if (response.status >= 400) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
@@ -90,8 +90,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
-                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
@@ -113,7 +112,7 @@ const store = createStore({
             }
             ChatAPI.translateMessage(message, regen).then(response => {
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
                 } else if (response.status >= 400) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
@@ -141,8 +140,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
-                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
@@ -158,7 +156,7 @@ const store = createStore({
             ChatAPI.audioMessage(blob).then(response => {
                 commit('deleteMessage');
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
                 } else if (response.status >= 400) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
@@ -193,8 +191,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    const error = state.apiKey ? '请求失败，请确保你使用的是有效的API KEY' : '请求频率太高，请稍后再试'
-                    commit('addMessage', { 'role': 'assistant', 'content': error })
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
