@@ -1,4 +1,4 @@
-# GeekChat - Free ChatGPT With Support For Text, Voice And Stream
+# GeekChat - Free ChatGPT With Support For Text, Voice And Image
 
 [中文文档](https://github.com/geekr-dev/geekchat/blob/main/README.zh.md)
 
