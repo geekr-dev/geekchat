@@ -54,9 +54,9 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> 编辑 </DropdownLink>
+                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
-                                            退出
+                                            Logout
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -88,7 +88,7 @@ const showingNavigationDropdown = ref(false);
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            用户后台
+                            Dashboard
                         </ResponsiveNavLink>
                     </div>
 
@@ -102,9 +102,9 @@ const showingNavigationDropdown = ref(false);
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')"> 用户信息 </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                退出
+                                Logout
                             </ResponsiveNavLink>
                         </div>
                     </div>

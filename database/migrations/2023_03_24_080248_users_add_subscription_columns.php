@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // 用户类型
+            // user subscription type
             $table->tinyInteger('subscription_type')->default(0)->after('email_verified_at');
-            // 订阅结束时间
+            // subscription ends time
             $table->timestamp('subscription_ends_at')->nullable()->after('subscription_type');
         });
     }

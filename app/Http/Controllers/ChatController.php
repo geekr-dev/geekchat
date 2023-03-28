@@ -16,7 +16,7 @@ use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
+    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using English as the first language.'];
 
     public function index()
     {
@@ -42,20 +42,20 @@ class ChatController extends Controller
         $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
         if ($regen && count($messages) == 1) {
-            // 处理服务端session已过期的情况
+            // Handling server-side session expiration
             $regen = false;
         }
         $userMessage = ['role' => 'user', 'content' => $request->input('prompt')];
         if (!$regen) {
-            // 基于session存储当前会话信息
+            // Store current session info based on session.
             $messages[] = $userMessage;
             $request->session()->put('messages', $messages);
         } elseif ($messages[count($messages) - 1]['role'] == 'assistant') {
-            // 重试则删除最后一条回复
+            // Delete the last reply if retrying.
             array_pop($messages);
             $request->session()->put('messages', $messages);
         }
-        $chatId = Str::uuid(); // 生成一个唯一聊天ID作为下次请求的凭证
+        $chatId = Str::uuid(); // Generate a unique chat ID as a credential for the next request.
         $request->session()->put('chat_id', $chatId);
         return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
     }
@@ -75,13 +75,13 @@ class ChatController extends Controller
         if ($regen && count($messages) == 1) {
             $regen = false;
         }
-        // 判断内容是中文还是英文
+        // Determine whether the content is in Chinese or English.
         $isChinese = preg_match('/[\x{4e00}-\x{9fa5}]/u', $request->input('prompt'));
-        $prefix = $isChinese ? '请将以下内容翻译成英文: ' : '请将以下内容翻译成中文: ';
+        $prefix = $isChinese ? 'Please translate the following content into English: ' : 'Please translate the following content into Chinese:';
         $userMessage = ['role' => 'user', 'content' => $prefix . $request->input('prompt')];
         if (!$regen) {
             $messages[] = $userMessage;
-            $request->session()->put('messages', $messages); // 基于session存储当前会话信息
+            $request->session()->put('messages', $messages);
         } elseif ($messages[count($messages) - 1]['role'] == 'assistant') {
             array_pop($messages);
             $request->session()->put('messages', $messages);
@@ -96,7 +96,7 @@ class ChatController extends Controller
      */
     public function stream(Request $request)
     {
-        // 校验请求是否合法
+        // Validate if the request is legitimate.
         if ($request->session()->get('chat_id') != $request->input('chat_id')) {
             abort(400);
         }
@@ -109,7 +109,7 @@ class ChatController extends Controller
             'stream' => true,
         ];
 
-        // 实时将流式响应数据发送到客户端
+        // Real-time streaming response data sent to the client
         $respData = '';
         $apiKey = $request->input('api_key');
         if ($apiKey) {
@@ -124,7 +124,7 @@ class ChatController extends Controller
             if ($httpCode >= 400) {
                 echo "data: [ERROR] $httpCode";
                 if (($httpCode == 400 || $httpCode == 401) && empty($apiKey)) {
-                    // app key 耗尽自动切换到下一个免费的 key
+                    // When the app key is exhausted, switch to the next free key automatically
                     Artisan::call('app:update-open-ai-key');
                 }
             } else {
@@ -136,12 +136,12 @@ class ChatController extends Controller
             return strlen($data);
         });
 
-        // 将响应数据存储到当前会话中以便刷新页面后可以看到聊天记录
+        // Store response data in the current session so that chat history can be seen after refreshing the page
         if (!empty($respData)) {
             $lines = explode("\n\n", $respData);
             $respText = '';
             foreach ($lines as $line) {
-                $data = substr($line, 5); // 每行数据结构是 data: {...}
+                $data = substr($line, 5); // The structure of each line of data is data: {...}.
                 if ($data === '[DONE]') {
                     break;
                 } else {
@@ -165,22 +165,22 @@ class ChatController extends Controller
             'audio' => [
                 'required',
                 File::types(['mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'wav', 'webm'])
-                    ->min(1)  // 最小不低于 1 KB
-                    ->max(10 * 1024), // 最大不超过 10 MB
+                    ->min(1)  // Minimum is not less than 1 KB
+                    ->max(10 * 1024), // Maximum not more than 10 MB
             ],
             'api_key' => 'sometimes|string',
         ]);
 
-        // 保存到本地
+        // Save to local
         $fileName = Str::uuid() . '.wav';
         $dir = 'audios' . date('/Y/m/d', time());
         $path = $request->audio->storeAs($dir, $fileName, 'local');
 
         $messages = $request->session()->get('messages', [
-            ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Make Mandarin Chinese the primary language']
+            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Make American English as the primary language']
         ]);
-        // $path = 'audios/2023/03/09/test.wav';（测试用）
-        // 调用 speech to text API 将语音转化为文字
+        // $path = 'audios/2023/03/09/test.wav';（for test）
+        // Call the speech to text API to convert speech to text
         try {
             $response = OpenAI::withToken($request->input('api_key'))->transcribe([
                 'model' => 'whisper-1',
@@ -190,23 +190,24 @@ class ChatController extends Controller
         } catch (Exception $exception) {
             return response()->json(['message' => ['role' => 'assistant', 'content' => SYSTEM_ERROR]]);
         } finally {
-            Storage::disk('local')->delete($path);  // 处理完毕删除音频文件
+            Storage::disk('local')->delete($path);  // Delete the audio file once processing is completed
         }
         $result = json_decode($response);
         if (empty($result->text)) {
             if ($request->input('api_key')) {
-                return response()->json(['message' => ['role' => 'assistant', 'content' => '识别语音失败，请确保你的KEY有效']]);
+                return response()->json(['message' => ['role' => 'assistant', 'content' => 'Speech recognition failed, please make sure your KEY is valid.']]);
             }
-            return response()->json(['message' => ['role' => 'assistant', 'content' => '对不起，我没有听清你说的话，请再试一次']]);
+            return response()->json(['message' => ['role' => 'assistant', 'content' => 'I\'m sorry, I didn\'t hear what you said, please try again.']]);
         }
 
-        // 接下来的流程和 ChatGPT 一样
+        // The following process is the same as ChatGPT API
         $userMessage = ['role' => 'user', 'content' => $result->text];
         $messages[] = $userMessage;
         $request->session()->put('messages', $messages);
         $chatId = Str::uuid();
         $request->session()->put('chat_id', $chatId);
-        return response()->json(['chat_id' => $chatId, 'message' => $userMessage]); // 将语音识别结果先返回给客户端
+        // Return the speech recognition result to the client first
+        return response()->json(['chat_id' => $chatId, 'message' => $userMessage]);
     }
 
     public function image(Request $request): JsonResponse
@@ -240,7 +241,7 @@ class ChatController extends Controller
             "response_format" => "url",
         ]);
         $result = json_decode($response);
-        $image = '画图失败，如果你设置了自己的key，请确保它是有效的';
+        $image = 'Failed to draw, if you set your own KEY, please make sure it is valid.';
         if (isset($result->data[0]->url)) {
             $image = '![](' . $result->data[0]->url . ')';
         }
@@ -267,12 +268,12 @@ class ChatController extends Controller
         ]);
         $apiKey = $request->input('api_key');
         if (empty($apiKey)) {
-            return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
+            return response()->json(['valid' => false, 'error' => 'invalid API KEY']);
         }
         $response = Http::withToken($apiKey)->timeout(15)
             ->get(config('openai.base_uri') . '/dashboard/billing/credit_grants');
         if ($response->failed()) {
-            return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
+            return response()->json(['valid' => false, 'error' => 'invalid API KEY']);
         }
         return response()->json(['valid' => true]);
     }

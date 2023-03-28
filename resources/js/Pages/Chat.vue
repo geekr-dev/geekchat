@@ -4,7 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useStore } from 'vuex';
 import { computed, onMounted } from 'vue';
 
-// 消息列表初始化
+// Initializing message list
 const store = useStore()
 onMounted(() => {
     store.dispatch('initMessages')
@@ -49,7 +49,7 @@ const audioFailed = (error) => {
 
 const image = () => {
     if (!form.prompt) {
-        alert('请在输入框输入图片描述信息')
+        alert('Please enter image description in the input box.')
         return
     }
     if (isTyping.value) {
@@ -61,7 +61,7 @@ const image = () => {
 
 const translate = () => {
     if (!form.prompt) {
-        alert('请在输入框输入待翻译内容')
+        alert('Please enter the content to be translated in the input box.')
         return
     }
     if (isTyping.value) {
@@ -72,7 +72,7 @@ const translate = () => {
 }
 
 const enterApiKey = () => {
-    const api_key = prompt("输入你的 OpenAI API KEY（使用自己的 KEY 可以不受共享通道频率限制，还可以绘制大尺寸图片）：");
+    const api_key = prompt("Enter your OpenAI API KEY (Using your own KEY can avoid frequency restrictions, we will not store your key on the server side):");
     store.dispatch('validAndSetApiKey', api_key)
 }
 
@@ -94,7 +94,7 @@ const regenerate = () => {
             store.dispatch('chatMessage', { message: lastMessage.value, regen: true })
             break
         default:
-            alert('未知消息类型')
+            alert('Unknown message type.')
             break
     }
 }
@@ -102,7 +102,7 @@ const regenerate = () => {
 </script>
 
 <template>
-    <Head title="GeekChat - 支持文字、语音、翻译、画图的聊天机器人"></Head>
+    <Head title="GeekChat - Free ChatGPT With Support For Text, Voice And Image"></Head>
     <div>
         <div class="max-w-5xl mx-auto">
             <div>
@@ -114,7 +114,8 @@ const regenerate = () => {
                             <div class="font-semibold text-4xl sm:text-5xl">Geek<span class="text-blue-500">Chat</span>
                             </div>
                         </div>
-                        <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">支持文字、语音、翻译、画图的聊天机器人
+                        <div class="text-center my-4 font-light text-base sm:text-xl my-2 sm:my-5">Free ChatGPT with support
+                            for Text, Voice and Image
                         </div>
                         <div>
                             <div class="text-sm text-center">
@@ -126,7 +127,7 @@ const regenerate = () => {
                                             <path
                                                 d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
                                             </path>
-                                        </svg><span>修改 KEY ({{ apiKey }})</span></button>
+                                        </svg><span>Edit KEY ({{ apiKey }})</span></button>
                                     <button v-else @click="enterApiKey"
                                         class="inline-flex items-center justify-center rounded-full px-4 py-2 shadow-md bg-blue-300 text-white hover:bg-blue-500 transition-all active:bg-blue-600 group font-semibold disabled:bg-gray-400 space-x-2">
                                         <svg stroke="currentColor" fill="currentColor" stroke-width="0"
@@ -135,13 +136,8 @@ const regenerate = () => {
                                             <path
                                                 d="M218.1 167.17c0 13 0 25.6 4.1 37.4-43.1 50.6-156.9 184.3-167.5 194.5a20.17 20.17 0 00-6.7 15c0 8.5 5.2 16.7 9.6 21.3 6.6 6.9 34.8 33 40 28 15.4-15 18.5-19 24.8-25.2 9.5-9.3-1-28.3 2.3-36s6.8-9.2 12.5-10.4 15.8 2.9 23.7 3c8.3.1 12.8-3.4 19-9.2 5-4.6 8.6-8.9 8.7-15.6.2-9-12.8-20.9-3.1-30.4s23.7 6.2 34 5 22.8-15.5 24.1-21.6-11.7-21.8-9.7-30.7c.7-3 6.8-10 11.4-11s25 6.9 29.6 5.9c5.6-1.2 12.1-7.1 17.4-10.4 15.5 6.7 29.6 9.4 47.7 9.4 68.5 0 124-53.4 124-119.2S408.5 48 340 48s-121.9 53.37-121.9 119.17zM400 144a32 32 0 11-32-32 32 32 0 0132 32z">
                                             </path>
-                                        </svg><span>API KEY（可选）</span>
+                                        </svg><span>API KEY (optional)</span>
                                     </button>
-                                    <a href="https://t.zsxq.com/0cC0ngiSn" target="_blank"
-                                        class="inline-flex items-center justify-center px-4 py-2 text-xs bg-blue-300 hover:bg-blue-500 active:bg-blue-600 text-white rounded-full md:text-base font-semibold"
-                                        type="button">
-                                        <span>加社群不迷路</span>
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +189,7 @@ const regenerate = () => {
                         <path fill-rule="evenodd"
                             d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
                             clip-rule="evenodd"></path>
-                    </svg><span>重新生成</span>
+                    </svg><span>Regenerate</span>
                 </button>
                 <button @click="reset"
                     class="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm shadow-md bg-gray-400 hover:bg-gray-500 text-white transition-all active:bg-gray-600 group font-semibold text-xs">
@@ -202,7 +198,7 @@ const regenerate = () => {
                         height="1em" width="1em">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                    </svg><span>清空消息</span>
+                    </svg><span>Clear all</span>
                 </button>
             </div>
         </div>
@@ -213,14 +209,14 @@ const regenerate = () => {
                     <div class="pb-safe">
                         <form class="grid grid-cols-1 gap-2 md:flex md:items-start md:justify-center md:space-x-2 mb-2"
                             @submit.prevent="chat">
-                            <textarea required id="chat-input-textbox" placeholder="输入你的问题/翻译内容/图片描述..." name="prompt"
-                                autocomplete="off" v-model="form.prompt"
+                            <textarea required id="chat-input-textbox" placeholder="Type your question/image desc...."
+                                name="prompt" autocomplete="off" v-model="form.prompt"
                                 :style="{ height: (form.prompt && form.prompt.split('\n').length > 1) ? form.prompt.split('\n').length * 2 + 'rem' : '40px' }"
                                 class="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:py-1.5 sm:text-sm sm:leading-6 resize-none"></textarea>
                             <div class="flex space-x-2">
                                 <button
                                     :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
-                                    title="发送消息" type="submit" :disabled="isTyping">
+                                    title="Send message" type="submit" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -230,20 +226,7 @@ const regenerate = () => {
                                 <audio-widget @audio-upload="audio" @audio-failed="audioFailed" :is-typing="isTyping" />
                                 <button
                                     :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
-                                    @click="translate" title="中英互译" type="button" :disabled="isTyping">
-                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                        width="24" height="24" viewBox="0 0 24 24">
-                                        <g fill="none">
-                                            <path d="M0 0h24v24H0z"></path>
-                                            <path fill="#FFFFFF"
-                                                d="M17 10.5a1.5 1.5 0 0 1 1.493 1.356L18.5 12v.5h1a2 2 0 0 1 1.995 1.85l.005.15v3a2 2 0 0 1-1.85 1.995l-.15.005h-1v.5a1.5 1.5 0 0 1-2.993.144L15.5 20v-.5h-1a2 2 0 0 1-1.995-1.85l-.005-.15v-3a2 2 0 0 1 1.85-1.995l.15-.005h1V12a1.5 1.5 0 0 1 1.5-1.5Zm-12 4A1.5 1.5 0 0 1 6.5 16v1a.5.5 0 0 0 .5.5h3a1.5 1.5 0 0 1 0 3H7A3.5 3.5 0 0 1 3.5 17v-1A1.5 1.5 0 0 1 5 14.5Zm10.5.5h-1v2h1v-2Zm4 0h-1v2h1v-2ZM9.5 2.5a1.5 1.5 0 0 1 0 3h-4v1H9a1.5 1.5 0 1 1 0 3H5.5v1H10a1.5 1.5 0 0 1 0 3H4.1a1.6 1.6 0 0 1-1.6-1.6V4.1a1.6 1.6 0 0 1 1.6-1.6h5.4Zm7.5 1A3.5 3.5 0 0 1 20.5 7v2a1.5 1.5 0 0 1-3 0V7a.5.5 0 0 0-.5-.5h-3a1.5 1.5 0 0 1 0-3h3Z">
-                                            </path>
-                                        </g>
-                                    </svg>
-                                </button>
-                                <button
-                                    :class="{ 'flex items-center justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm md:text-base': true, 'opacity-25': isTyping }"
-                                    @click="image" title="AI绘图" type="button" :disabled="isTyping">
+                                    @click="image" title="AI Draw" type="button" :disabled="isTyping">
                                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                         width="24" height="24" viewBox="0 0 24 24">
                                         <path fill="#FFFFFF"

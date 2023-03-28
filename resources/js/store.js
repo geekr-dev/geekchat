@@ -37,7 +37,7 @@ const store = createStore({
         }
     },
     actions: {
-        // 初始化消息
+        // Initialize messages
         initMessages({ commit }) {
             commit('setApiKey', window.localStorage.getItem('GEEKCHAT_API_KEY', ''));
             commit('setLastLog', { action: window.localStorage.getItem('GEEKCHAT_LAST_ACTION', ''), message: window.localStorage.getItem('GEEKCHAT_LAST_MESSAGE', '') });
@@ -51,30 +51,30 @@ const store = createStore({
             commit('toggleTyping')
             console.log(regen)
             if (!regen) {
-                // 第一次才输出用户消息并记录日志
+                // Output user message and record log only for the first time.
                 commit('addMessage', { 'role': 'user', 'content': message })
                 window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'chat');
                 window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', message);
                 commit('setLastLog', { action: 'chat', message: message });
             } else if (state.messages[state.messages.length - 1].role === 'assistant') {
-                // 跟服务端逻辑一致，先把最后一条回复删掉
+                // Consistent with server logic, delete the last reply first.
                 commit('deleteMessage');
             }
             ChatAPI.chatMessage(message, regen).then(response => {
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
-                    throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request frequency is too high, please try again later.' })
+                    throw new Error('Request frequency is too high, please try again later.');  // Throw an exception and interrupt subsequent operations.
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
-                    throw new Error('服务端异常，请稍后再试');
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Server exception, please try again later.' })
+                    throw new Error('Server exception, please try again later.');
                 }
                 return response.json();
             }).then(data => {
-                commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
+                commit('addMessage', { 'role': 'assistant', 'content': 'Thinking about how to answer your question, please wait...' })
                 const apiKey = state.apiKey ? btoa(state.apiKey) : '';
                 const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
-                    if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
+                    if (state.messages[state.messages.length - 1].content === 'Thinking about how to answer your question, please wait...') {
                         state.messages[state.messages.length - 1].content = '';
                     }
                     if (e.data == "[DONE]") {
@@ -90,7 +90,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request frequency is too high, please try again later.' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
@@ -112,19 +112,19 @@ const store = createStore({
             }
             ChatAPI.translateMessage(message, regen).then(response => {
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
-                    throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request frequency is too high, please try again later.' })
+                    throw new Error('Request frequency is too high, please try again later.');
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
-                    throw new Error('服务端异常，请稍后再试');
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Server exception, please try again later.' })
+                    throw new Error('Server exception, please try again later.');
                 }
                 return response.json();
             }).then(data => {
-                commit('addMessage', { 'role': 'assistant', 'content': '正在自动翻译你提交的内容，请稍候...' })
+                commit('addMessage', { 'role': 'assistant', 'content': 'Automatically translating the content you submitted, please wait...' })
                 const apiKey = state.apiKey ? btoa(state.apiKey) : '';
                 const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
-                    if (state.messages[state.messages.length - 1].content === '正在自动翻译你提交的内容，请稍候...') {
+                    if (state.messages[state.messages.length - 1].content === 'Automatically translating the content you submitted, please wait...') {
                         state.messages[state.messages.length - 1].content = '';
                     }
                     if (e.data == "[DONE]") {
@@ -140,7 +140,7 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request frequency is too high, please try again later.' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
@@ -152,30 +152,30 @@ const store = createStore({
         },
         audioMessage({ state, commit }, blob) {
             commit('toggleTyping')
-            commit('addMessage', { 'role': 'user', 'content': '正在识别语音，请稍候...' })
+            commit('addMessage', { 'role': 'user', 'content': 'Identifying the voice, please wait...' })
             ChatAPI.audioMessage(blob).then(response => {
                 commit('deleteMessage');
                 if (response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
-                    throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request frequency is too high, please try again later.' })
+                    throw new Error('Request frequency is too high, please try again later.');
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
-                    throw new Error('服务端异常，请稍后再试');
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Server exception, please try again later.' })
+                    throw new Error('Server exception, please try again later.');
                 }
                 return response.json();
             }).then(data => {
-                commit('addMessage', data.message); // 将语音识别结果作为用户文本信息
+                commit('addMessage', data.message); // Use the speech recognition result as the user text information.
                 window.localStorage.setItem('GEEKCHAT_LAST_ACTION', 'audio');
                 window.localStorage.setItem('GEEKCHAT_LAST_MESSAGE', data.message.content);
                 commit('setLastLog', { action: 'audio', message: data.message.content });
                 if (data.message.role === 'assistant') {
-                    throw new Error('语音识别失败，请重试');
+                    throw new Error('Speech recognition failed, please try again.');
                 }
-                commit('addMessage', { 'role': 'assistant', 'content': '正在思考如何回答您的问题，请稍候...' })
+                commit('addMessage', { 'role': 'assistant', 'content': 'Thinking about how to answer your question, please wait...' })
                 const apiKey = state.apiKey ? btoa(state.apiKey) : '';
                 const eventSource = new EventSource(`/stream?chat_id=${data.chat_id}&api_key=${apiKey}`);
                 eventSource.onmessage = function (e) {
-                    if (state.messages[state.messages.length - 1].content === '正在思考如何回答您的问题，请稍候...') {
+                    if (state.messages[state.messages.length - 1].content === 'Thinking about how to answer your question, please wait...') {
                         state.messages[state.messages.length - 1].content = '';
                     }
                     if (e.data == "[DONE]") {
@@ -191,13 +191,13 @@ const store = createStore({
                 eventSource.onerror = function (e) {
                     eventSource.close();
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Requests are too frequent, please try again later.' })
                     commit('toggleTyping')
                 };
             }).catch(error => {
-                if (state.messages[state.messages.length - 1].content === '正在识别语音，请稍候...') {
+                if (state.messages[state.messages.length - 1].content === 'Recognizing speech, please wait...') {
                     commit('deleteMessage');
-                    commit('addMessage', { 'role': 'assistant', 'content': '网络请求失败，请重试' })
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Network request failed, please try again.' })
                 }
                 console.log(error);
                 if (state.isTyping) {
@@ -215,7 +215,7 @@ const store = createStore({
             } else if (state.messages[state.messages.length - 1].role === 'assistant') {
                 commit('deleteMessage');
             }
-            commit('addMessage', { 'role': 'assistant', 'content': '正在根据你提供的信息绘图，请稍候...' })
+            commit('addMessage', { 'role': 'assistant', 'content': 'Drawing based on the information you provided, please wait...' })
             ChatAPI.imageMessage(message, regen).then(response => {
                 commit('deleteMessage')
                 commit('addMessage', response.data);
@@ -223,16 +223,16 @@ const store = createStore({
             }).catch(error => {
                 commit('deleteMessage')
                 if (error.response.status === 429) {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Requests are too frequent, please try again later.' });
                 } else {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请重试' });
+                    commit('addMessage', { 'role': 'assistant', 'content': 'Request processing failed, please try again.' });
                 }
                 commit('toggleTyping')
             });
         },
         validAndSetApiKey({ commit }, apiKey) {
             if (apiKey === null || apiKey === undefined || apiKey === '') {
-                // 设置为空则删除本地存储的apikey
+                // Set to null to delete the locally stored apikey.
                 commit('setApiKey', apiKey);
                 window.localStorage.removeItem('GEEKCHAT_API_KEY');
                 return;
@@ -245,7 +245,7 @@ const store = createStore({
                 commit('setApiKey', apiKey);
                 window.localStorage.setItem('GEEKCHAT_API_KEY', apiKey);
             }).catch(error => {
-                alert('网络请求失败，请刷新页面重试');
+                alert('Network request failed, please refresh the page and try again.');
             });
         },
         clearMessages({ commit }) {
@@ -260,7 +260,7 @@ const store = createStore({
         },
     },
     getters: {
-        // 获取所有消息
+        // Get all messages.
         allMessages(state) {
             return state.messages
         }

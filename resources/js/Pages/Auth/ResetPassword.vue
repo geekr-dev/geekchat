@@ -28,11 +28,11 @@ const submit = () => {
 <template>
     <GuestLayout>
 
-        <Head title="重置密码" />
+        <Head title="Reset Password" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="邮箱" />
+                <InputLabel for="email" value="Email" />
 
                 <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autofocus
                     autocomplete="username" />
@@ -41,7 +41,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="密码" />
+                <InputLabel for="password" value="Password" />
 
                 <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required
                     autocomplete="new-password" />
@@ -50,7 +50,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="确认密码" />
+                <InputLabel for="password_confirmation" value="Confirm Password" />
 
                 <TextInput id="password_confirmation" type="password" class="mt-1 block w-full"
                     v-model="form.password_confirmation" required autocomplete="new-password" />
@@ -60,7 +60,7 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    重置密码
+                    Reset Password
                 </PrimaryButton>
             </div>
         </form>

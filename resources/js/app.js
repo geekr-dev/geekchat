@@ -8,7 +8,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import Markdown from 'vue3-markdown-it';
 
-// 代码高亮
+// Code Highlight
 import 'highlight.js/styles/github.css';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';

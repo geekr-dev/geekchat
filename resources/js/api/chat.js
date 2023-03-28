@@ -2,12 +2,12 @@ import axios from 'axios'
 import { CHAT_CONFIG } from '../config.js';
 
 export default {
-    // 获取所有消息
+    // Get all messages.
     getMessages: () => {
         return axios.get(CHAT_CONFIG.BASE_URL + '/messages', { responseType: 'json' })
     },
 
-    // 发送文本消息
+    // Send text message.
     chatMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
@@ -15,7 +15,7 @@ export default {
         return fetch(CHAT_CONFIG.BASE_URL + '/chat', { method: 'POST', body: formData })
     },
 
-    // 发送翻译消息
+    // Send translation message.
     translateMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
@@ -23,7 +23,7 @@ export default {
         return fetch(CHAT_CONFIG.BASE_URL + '/translate', { method: 'POST', body: formData })
     },
 
-    // 发送语音消息
+    // Send voice message.
     audioMessage: (blob) => {
         const formData = new FormData();
         formData.append('audio', blob);
@@ -34,7 +34,7 @@ export default {
         return fetch(CHAT_CONFIG.BASE_URL + '/audio', { method: 'POST', body: formData })
     },
 
-    // 发送画图消息
+    // Send image create message.
     imageMessage: (message, regen) => {
         const formData = new FormData();
         formData.append('prompt', message);
@@ -46,14 +46,14 @@ export default {
         return axios.post(CHAT_CONFIG.BASE_URL + '/image', formData, { responseType: 'json' })
     },
 
-    // 验证API Key
+    // Verify API Key.
     validApiKey: (api_key) => {
         const formData = new FormData();
         formData.append('api_key', api_key);
         return axios.post(CHAT_CONFIG.BASE_URL + '/valid', formData, { responseType: 'json' })
     },
 
-    // 清空所有消息
+    // Clear all messages.
     clearMessages: () => {
         return axios.get(CHAT_CONFIG.BASE_URL + '/reset')
     },

@@ -4,7 +4,7 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
-define('SYSTEM_ERROR', '服务端出现异常，[请联系管理员](https://image.gstatics.cn/wechat.webp)。');
+define('SYSTEM_ERROR', 'The server encountered an exception, [please contact the administrator](https://twitter.com/geek_chatgpt).');
 
 
 /*

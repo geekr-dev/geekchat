@@ -29,15 +29,15 @@ class AiServiceProvider extends ServiceProvider
             }
 
             $openAi = new OpenAI($apiKey);
-            $openAi->setTimeout(60); // 超时时间默认是60s
+            $openAi->setTimeout(60); // The default timeout time is 60s.
             if ($organization !== null) {
                 $openAi->setORG($organization);
             }
-            // 配置了服务代理地址
+            // The service proxy address has been configured.
             if ($baseUri) {
                 $openAi->setBaseURL($baseUri);
             }
-            // 配置了本地网络代理
+            // The local network proxy has been configured.
             if ($httpProxy) {
                 $openAi->setProxy($httpProxy);
             }

@@ -20,25 +20,26 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
 <template>
     <GuestLayout>
 
-        <Head title="邮箱验证" />
+        <Head title="Email Verification" />
 
         <div class="mb-4 text-sm text-gray-600">
-            感谢您的注册！在开始使用之前，请点击我们刚刚发送给您的邮件中的链接来验证您的邮箱地址。如果您没有收到邮件，我们很乐意再次发送给您。
+            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link
+            we just emailed to you? If you didn't receive the email, we will gladly send you another.
         </div>
 
         <div class="mb-4 font-medium text-sm text-green-600" v-if="verificationLinkSent">
-            一个新的验证链接已发送至您在注册过程中提供的邮箱地址。
+            A new verification link has been sent to the email address you provided during registration.
         </div>
 
         <form @submit.prevent="submit">
             <div class="mt-4 flex items-center justify-between">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    重新发送验证邮件
+                    Resend Verification Email
                 </PrimaryButton>
 
                 <Link :href="route('logout')" method="post" as="button"
                     class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                退出</Link>
+                Log Out</Link>
             </div>
         </form>
     </GuestLayout>

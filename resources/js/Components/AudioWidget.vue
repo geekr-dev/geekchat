@@ -1,7 +1,8 @@
 <template>
     <div>
-        <icon-button :class="buttonClass" v-if="recording" name="stop" @click="toggleRecording" title="结束&发送语音" />
-        <icon-button :class="buttonClass" v-else name="mic" @click="toggleRecording" title="录制语音" />
+        <icon-button :class="buttonClass" v-if="recording" name="stop" @click="toggleRecording"
+            title="Finish & Send Voice" />
+        <icon-button :class="buttonClass" v-else name="mic" @click="toggleRecording" title="Record Voice" />
     </div>
 </template>
   
@@ -9,9 +10,9 @@
 import Recorder from "../lib/Recorder";
 import IconButton from "./IconButton.vue";
 
-const ERROR_MESSAGE = "无法使用麦克风，请确保具备硬件条件以及授权应用使用你的麦克风";
-const ERROR_TIMEOUT_MESSAGE = "体验版目前仅支持30秒以内语音, 请重试";
-const ERROR_BLOB_MESSAGE = "录音数据为空, 点击小话筒->开始讲话->讲完点终止键，再来一次吧";
+const ERROR_MESSAGE = "Unable to use microphone, please ensure that you have the hardware requirements and have authorized the application to use your microphone.";
+const ERROR_TIMEOUT_MESSAGE = "The trial version only supports voice recordings under 30 seconds, please try again.";
+const ERROR_BLOB_MESSAGE = "The recording data is empty. Click the microphone icon -> Start speaking -> Press the stop button when finished. Try again.";
 
 export default {
     name: "AudioWidget",
@@ -51,56 +52,56 @@ export default {
     methods: {
         toggleRecording() {
             if (this.isTyping) {
-                alert("同时只能处理一个消息");
+                alert("Only one message can be processed at a time.");
                 return;
             }
-            // 用户点击按钮触发
+            // Triggered when the user clicks the button
             this.recording = !this.recording;
             if (this.recording) {
-                // 开始录音
+                // Start recording
                 this.initRecorder();
             } else {
-                // 结束录音
+                // Finish recording.
                 this.stopRecording();
             }
         },
         initRecorder() {
-            // 初始化Recoder
+            // Initialize the recorder
             this.recorder = new Recorder({
                 micFailed: this.micFailed,
                 bitRate: this.bitRate,
                 sampleRate: this.sampleRate,
             });
-            // 开始录音
+            // Start recording
             this.recorder.start();
             this.errorMessage = null;
         },
         stopRecording() {
-            // 停止录音
+            // Stop recording
             this.recorder.stop();
             const recordList = this.recorder.recordList();
             this.recordedAudio = recordList[0].url;
             this.recordedBlob = recordList[0].blob;
-            // 录音数据不为空触发上传
+            // Trigger upload when recording data is not empty
             if (this.recordedAudio && this.recordedBlob) {
-                // 录音成功，先判断时长
+                // Recording successful, first determine the duration
                 if (this.recorder.duration > this.time) {
                     this.errorMessage = ERROR_TIMEOUT_MESSAGE;
                     this.$emit('audio-failed', this.errorMessage);
                     return;
                 }
-                // 录音数据为空，不处理
+                // Recording data is empty, do not process
                 if (!this.recordedBlob) {
                     this.errorMessage = ERROR_BLOB_MESSAGE;
                     this.$emit('audio-failed', this.errorMessage);
                     return;
                 }
-                // 提交录音数据给后端
+                // Submit recording data to the backend
                 this.$emit('audio-upload', this.recordedBlob);
             }
         },
         micFailed() {
-            // 录音失败
+            // Recording failed
             this.recording = false;
             this.errorMessage = ERROR_MESSAGE;
             this.$emit('audio-failed', this.errorMessage);

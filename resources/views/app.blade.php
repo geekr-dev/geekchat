@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/png" href="https://image.gstatics.cn/icon/geekchat.png">
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'GeekChat') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,9 +22,8 @@
     @inertia
     <footer class="text-center sm:text-left">
         <div class="p-4 text-center text-neutral-700">
-            GeekChat 由
-            <a href="https://geekr.dev" target="_blank" class="text-neutral-800 dark:text-neutral-400">极客书房</a>
-            开发维护，定制开发、合作咨询请<a href="https://image.gstatics.cn/wechat.webp" target="_blank" class="text-blue-300 dark:text-blue-500">点这里</a>。
+            We won't store any of your data,
+            <a href="https://twitter.com/geek_chatgpt" target="_blank" class="text-blue-300 dark:text-blue-500">Click here to provide feedback if you encounter any issues</a>.
         </div>
     </footer>
 </body>
