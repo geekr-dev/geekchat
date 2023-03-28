@@ -72,7 +72,7 @@ const translate = () => {
 }
 
 const enterApiKey = () => {
-    const api_key = prompt("Enter your OpenAI API KEY (Using your own KEY can avoid frequency restrictions, we will not store your key on the server side):");
+    const api_key = prompt("Enter your OpenAI API KEY (Using your own KEY can avoid frequency restrictions, we won't store your KEY on the server side):");
     store.dispatch('validAndSetApiKey', api_key)
 }
 
@@ -119,7 +119,7 @@ const regenerate = () => {
                         </div>
                         <div>
                             <div class="text-sm text-center">
-                                <div class="flex space-x-2">
+                                <div>
                                     <button v-if="apiKey" @click="enterApiKey"
                                         class="text-blue-500 hover:underline font-semibold inline-flex space-x-2 disabled:text-gray-500"><svg
                                             stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"

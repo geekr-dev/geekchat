@@ -22,7 +22,6 @@
     @inertia
     <footer class="text-center sm:text-left">
         <div class="p-4 text-center text-neutral-700">
-            We won't store any of your data,
             <a href="https://twitter.com/geek_chatgpt" target="_blank" class="text-blue-300 dark:text-blue-500">Click here to provide feedback if you encounter any issues</a>.
         </div>
     </footer>
