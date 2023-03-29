@@ -4,6 +4,8 @@
 
 这是使用 Laravel 10 + Inertia + Vue3 + Tailwind + OpenAI API 实现的 ChatGPT 网页版，在文字基础上增加了对语音的支持（基于 Whisper）、绘图的支持（DALL·E）、翻译的支持。
 
+[线上体验版](https://gpt.geekr.dev)
+
 支持 **文字** && **语音**
 
 <img width="598" alt="fa89bd30dfc71ef7312ca9dc8d079f3" src="https://user-images.githubusercontent.com/114386672/226559170-22e49847-b8b4-4c2a-856b-0325bb884f6e.png">
