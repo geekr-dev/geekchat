@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 define('SYSTEM_ERROR', '服务端出现异常，[请联系管理员](https://image.gstatics.cn/wechat.webp)。');
+define('CONTENT_ERROR', '内容不合规，请勿将本工具用于正常工作、学习、生活之外的无关场景');
 
 
 /*

@@ -64,9 +64,12 @@ const store = createStore({
                 if (response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
-                } else if (response.status >= 400) {
+                } else if (response.status >= 500) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
+                } else if (response.status >= 400) {
+                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
             }).then(data => {
@@ -114,9 +117,12 @@ const store = createStore({
                 if (response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
-                } else if (response.status >= 400) {
+                } else if (response.status >= 500) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
+                } else if (response.status >= 400) {
+                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
             }).then(data => {
@@ -158,9 +164,12 @@ const store = createStore({
                 if (response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求频率太高，请稍后再试' })
                     throw new Error('请求过于频繁，请稍后再试');  // 抛出异常，中断后续操作
-                } else if (response.status >= 400) {
+                } else if (response.status >= 500) {
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
+                } else if (response.status >= 400) {
+                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
             }).then(data => {
@@ -225,7 +234,7 @@ const store = createStore({
                 if (error.response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
                 } else {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请重试' });
+                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请输入合规内容，如果使用的是自定义KEY，请确保它是有效的' });
                 }
                 commit('toggleTyping')
             });

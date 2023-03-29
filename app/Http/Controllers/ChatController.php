@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Facades\OpenAI;
+use App\Facades\TmsFacade;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
+    private $preset = ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Using Simplified Chinese as the first language.'];
 
     public function index()
     {
@@ -39,6 +40,10 @@ class ChatController extends Controller
             'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $passed = TmsFacade::checkText($request->input('prompt'));
+        if (!$passed) {
+            return response()->json(['message' => CONTENT_ERROR], 400);
+        }
         $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
         if ($regen && count($messages) == 1) {
@@ -70,6 +75,10 @@ class ChatController extends Controller
             'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $passed = TmsFacade::checkText($request->input('prompt'));
+        if (!$passed) {
+            return response()->json(['message' => CONTENT_ERROR], 400);
+        }
         $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
         if ($regen && count($messages) == 1) {
@@ -170,14 +179,13 @@ class ChatController extends Controller
             ],
             'api_key' => 'sometimes|string',
         ]);
-
         // 保存到本地
         $fileName = Str::uuid() . '.wav';
         $dir = 'audios' . date('/Y/m/d', time());
         $path = $request->audio->storeAs($dir, $fileName, 'local');
 
         $messages = $request->session()->get('messages', [
-            ['role' => 'system', 'content' => 'You are GeekChat - A chatbot that can understand text, voice, draw image and translate. Answer as concisely as possible. Make Mandarin Chinese the primary language']
+            ['role' => 'system', 'content' => 'You are GeekChat - A ChatGPT clone. Answer as concisely as possible. Make Mandarin Chinese the primary language']
         ]);
         // $path = 'audios/2023/03/09/test.wav';（测试用）
         // 调用 speech to text API 将语音转化为文字
@@ -199,7 +207,10 @@ class ChatController extends Controller
             }
             return response()->json(['message' => ['role' => 'assistant', 'content' => '对不起，我没有听清你说的话，请再试一次']]);
         }
-
+        $passed = TmsFacade::checkText($result->text);
+        if (!$passed) {
+            return response()->json(['message' => CONTENT_ERROR], 400);
+        }
         // 接下来的流程和 ChatGPT 一样
         $userMessage = ['role' => 'user', 'content' => $result->text];
         $messages[] = $userMessage;
@@ -216,6 +227,10 @@ class ChatController extends Controller
             'regen' => ['required', 'in:true,false'],
             'api_key' => 'sometimes|string',
         ]);
+        $passed = TmsFacade::checkText($request->input('prompt'));
+        if (!$passed) {
+            return response()->json(['message' => CONTENT_ERROR], 400);
+        }
         $regen = $request->boolean('regen');
         $messages = $request->session()->get('messages', [$this->preset]);
         if ($regen && count($messages) == 1) {
