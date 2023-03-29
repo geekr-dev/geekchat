@@ -8,7 +8,7 @@ switch (process.env.NODE_ENV) {
         base_url = 'http://127.0.0.1:8000';
         break;
     case 'production':
-        base_url = 'https://chat.geekr.dev';
+        base_url = 'https://gpt.geekr.dev';
         break;
 }
 
