@@ -50,11 +50,15 @@ class TmsService
 
             // 返回的resp是一个TextModerationResponse的实例，与请求对象对应
             $resp = $client->TextModeration($req);
-            if ($resp->Suggestion === 'Pass') {
-                return true;
-            } else {
+            // 广告予以放行（适用于广告文案）
+            if ($resp->Suggestion === 'Block' && $resp->Label !== 'Ad') {
                 return false;
             }
+            // 政治话题红线最高，即使疑似也予以拦截
+            if ($resp->Suggestion === 'Review' && $resp->Label === 'Polity') {
+                return false;
+            }
+            return true;
         } catch (TencentCloudSDKException $e) {
             throw $e;
         }

@@ -38,7 +38,7 @@ class ChatController extends Controller
         $request->validate([
             'prompt' => 'required|string',
             'regen' => ['required', 'in:true,false'],
-            'api_key' => 'sometimes|string',
+            'api_key' => 'required|string',
         ]);
         $passed = TmsFacade::checkText($request->input('prompt'));
         if (!$passed) {
@@ -73,7 +73,7 @@ class ChatController extends Controller
         $request->validate([
             'prompt' => 'required|string',
             'regen' => ['required', 'in:true,false'],
-            'api_key' => 'sometimes|string',
+            'api_key' => 'required|string',
         ]);
         $passed = TmsFacade::checkText($request->input('prompt'));
         if (!$passed) {
@@ -109,6 +109,11 @@ class ChatController extends Controller
         if ($request->session()->get('chat_id') != $request->input('chat_id')) {
             abort(400);
         }
+        $apiKey = $request->input('api_key');
+        if (empty($apiKey)) {
+            abort(403);
+        }
+        $apiKey = base64_decode($apiKey);
 
         $messages = $request->session()->get('messages');
 
@@ -120,22 +125,18 @@ class ChatController extends Controller
 
         // 实时将流式响应数据发送到客户端
         $respData = '';
-        $apiKey = $request->input('api_key');
-        if ($apiKey) {
-            $apiKey = base64_decode($apiKey);
-        }
         header('Access-Control-Allow-Origin: *');
         header('Content-type: text/event-stream');
         header('Cache-Control: no-cache');
         header('X-Accel-Buffering: no');
-        OpenAI::withToken($apiKey)->chat($params, function ($ch, $data) use ($apiKey, &$respData) {
+        OpenAI::withToken($apiKey)->chat($params, function ($ch, $data) use (&$respData) {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($httpCode >= 400) {
                 echo "data: [ERROR] $httpCode";
-                if (($httpCode == 400 || $httpCode == 401) && empty($apiKey)) {
+                /* if (($httpCode == 400 || $httpCode == 401) && empty($apiKey)) {
                     // app key 耗尽自动切换到下一个免费的 key
                     Artisan::call('app:update-open-ai-key');
-                }
+                }*/
             } else {
                 $respData .= $data;
                 echo $data;;
@@ -177,7 +178,7 @@ class ChatController extends Controller
                     ->min(1)  // 最小不低于 1 KB
                     ->max(10 * 1024), // 最大不超过 10 MB
             ],
-            'api_key' => 'sometimes|string',
+            'api_key' => 'required|string',
         ]);
         // 保存到本地
         $fileName = Str::uuid() . '.wav';
@@ -225,7 +226,7 @@ class ChatController extends Controller
         $request->validate([
             'prompt' => 'required|string',
             'regen' => ['required', 'in:true,false'],
-            'api_key' => 'sometimes|string',
+            'api_key' => 'required|string',
         ]);
         $passed = TmsFacade::checkText($request->input('prompt'));
         if (!$passed) {
@@ -244,18 +245,14 @@ class ChatController extends Controller
             array_pop($messages);
         }
         $apiKey = $request->input('api_key');
-        $size = '256x256';
-        if (!empty($apiKey)) {
-            $size = '1024x1024';
-        }
         $response = OpenAI::withToken($apiKey)->image([
             "prompt" => $prompt,
             "n" => 1,
-            "size" => $size,
+            "size" => '256x256',
             "response_format" => "url",
         ]);
         $result = json_decode($response);
-        $image = '画图失败，如果你设置了自己的key，请确保它是有效的';
+        $image = '画图失败，请确保 API KEY 是有效的';
         if (isset($result->data[0]->url)) {
             $image = '![](' . $result->data[0]->url . ')';
         }
@@ -281,12 +278,7 @@ class ChatController extends Controller
             'api_key' => 'required|string'
         ]);
         $apiKey = $request->input('api_key');
-        if (empty($apiKey)) {
-            return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
-        }
-        $response = Http::withToken($apiKey)->timeout(15)
-            ->get(config('openai.base_uri') . '/dashboard/billing/credit_grants');
-        if ($response->failed()) {
+        if (empty($apiKey) || strlen($apiKey) != 51 || !Str::startsWith($apiKey, 'sk-')) {
             return response()->json(['valid' => false, 'error' => '无效的 API KEY']);
         }
         return response()->json(['valid' => true]);

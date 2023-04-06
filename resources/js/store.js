@@ -68,7 +68,7 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    commit('addMessage', { 'role': 'assistant', 'content': "请输入有效的 API KEY" })
                     throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
@@ -121,7 +121,7 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    commit('addMessage', { 'role': 'assistant', 'content': "请输入有效的 API KEY" })
                     throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
@@ -168,7 +168,7 @@ const store = createStore({
                     commit('addMessage', { 'role': 'assistant', 'content': '服务端异常，请稍后再试' })
                     throw new Error('服务端异常，请稍后再试');
                 } else if (response.status >= 400) {
-                    commit('addMessage', { 'role': 'assistant', 'content': "请求处理失败，请输入合规内容，如果使用的是自定义 KEY，请确保它是有效的" })
+                    commit('addMessage', { 'role': 'assistant', 'content': "请输入有效的 API KEY" })
                     throw new Error('请求处理失败，请重试');
                 }
                 return response.json();
@@ -234,7 +234,7 @@ const store = createStore({
                 if (error.response.status === 429) {
                     commit('addMessage', { 'role': 'assistant', 'content': '请求过于频繁，请稍后再试' });
                 } else {
-                    commit('addMessage', { 'role': 'assistant', 'content': '请求处理失败，请输入合规内容，如果使用的是自定义KEY，请确保它是有效的' });
+                    commit('addMessage', { 'role': 'assistant', 'content': '请输入有效的 API KEY' });
                 }
                 commit('toggleTyping')
             });

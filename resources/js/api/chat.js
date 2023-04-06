@@ -12,6 +12,8 @@ export default {
         const formData = new FormData();
         formData.append('prompt', message);
         formData.append('regen', regen);
+        const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
+        formData.append('api_key', api_key);
         return fetch(CHAT_CONFIG.BASE_URL + '/chat', { method: 'POST', body: formData })
     },
 
@@ -20,6 +22,8 @@ export default {
         const formData = new FormData();
         formData.append('prompt', message);
         formData.append('regen', regen);
+        const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
+        formData.append('api_key', api_key);
         return fetch(CHAT_CONFIG.BASE_URL + '/translate', { method: 'POST', body: formData })
     },
 
@@ -28,9 +32,7 @@ export default {
         const formData = new FormData();
         formData.append('audio', blob);
         const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
-        if (api_key) {
-            formData.append('api_key', api_key);
-        }
+        formData.append('api_key', api_key);
         return fetch(CHAT_CONFIG.BASE_URL + '/audio', { method: 'POST', body: formData })
     },
 
@@ -40,9 +42,7 @@ export default {
         formData.append('prompt', message);
         formData.append('regen', regen);
         const api_key = window.localStorage.getItem('GEEKCHAT_API_KEY', '')
-        if (api_key) {
-            formData.append('api_key', api_key);
-        }
+        formData.append('api_key', api_key);
         return axios.post(CHAT_CONFIG.BASE_URL + '/image', formData, { responseType: 'json' })
     },
 
